@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dexter"
+version = "0.1.0"
+description = "AI agent for financial analysis."
+authors = []
+requires-python = ">=3.10"
+dependencies = [
+    "langchain>=0.3.27",
+    "langchain-openai>=0.3.35",
+    "openai>=2.2.0",
+    "prompt-toolkit>=3.0.0",
+    "pydantic>=2.11.10",
+    "python-dotenv>=1.1.1",
+    "requests>=2.32.5",
+]
+
+[project.scripts]
+dexter-agent = "dexter.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
