@@ -14,6 +14,8 @@ Dexter breaks down complex financial queries into actionable tasks, executes the
 - **Real-Time Financial Data**: Access to income statements, balance sheets, and cash flow statements
 - **Safety Features**: Built-in loop detection and step limits to prevent runaway execution
 
+[![Twitter Follow](https://img.shields.io/twitter/follow/virattt?style=social)](https://twitter.com/virattt)
+
 ## Quick Start
 
 ### Prerequisites
@@ -87,8 +89,8 @@ dexter/
 │   │   ├── tools.py      # Financial data tools
 │   │   ├── prompts.py    # System prompts for each component
 │   │   ├── schemas.py    # Pydantic models
-│   │   └── logger.py     # Logging utilities
-│   └── main.py           # CLI entry point
+│   │   ├── utils/        # Utility functions
+│   │   └── cli.py        # CLI entry point
 ├── pyproject.toml
 └── uv.lock
 ```
@@ -106,11 +108,18 @@ agent = Agent(
 )
 ```
 
+## How to Contribute
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+**Important**: Please keep your pull requests small and focused.  This will make it easier to review and merge.
+
+
 ## License
 
-[Add your license here]
-
-## Contributing
-
-[Add contributing guidelines here]
+This project is licensed under the MIT License.
 
