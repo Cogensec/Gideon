@@ -33,7 +33,7 @@ It’s not just another chatbot.  It’s an agent that plans ahead, verifies its
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/virattt/dexter.git
 cd dexter
 ```
 
