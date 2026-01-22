@@ -1,102 +1,8 @@
 # Gideon Architecture
 
-## 1. Current State: Dexter (Financial Research Agent)
+## 1. System Overview
 
-### System Overview
-Dexter is an autonomous financial research agent built with TypeScript/Bun that:
-- Takes natural language queries about stocks, companies, and markets
-- Uses an agentic loop with task planning and self-reflection
-- Executes financial data API calls and web searches
-- Streams real-time results through a terminal UI (Ink/React)
-
-### Core Architecture
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                     CLI Entry Point                           │
-│                    (src/index.tsx)                            │
-└────────────────────┬─────────────────────────────────────────┘
-                     │
-┌────────────────────▼─────────────────────────────────────────┐
-│                   Ink CLI Interface                           │
-│                    (src/cli.tsx)                              │
-│  - User input handling                                        │
-│  - Model selection (/model command)                           │
-│  - History navigation                                         │
-│  - Real-time UI rendering                                     │
-└────────────────────┬─────────────────────────────────────────┘
-                     │
-┌────────────────────▼─────────────────────────────────────────┐
-│                   Agent Core Loop                             │
-│                  (src/agent/agent.ts)                         │
-│                                                               │
-│  1. Receive user query                                        │
-│  2. Build prompt with system instructions                     │
-│  3. Call LLM with tools available                             │
-│  4. Execute tool calls (if any)                               │
-│  5. Summarize results (context compaction)                    │
-│  6. Iterate until ready for final answer                      │
-│  7. Generate final answer with full context                   │
-│                                                               │
-│  Safety: Max iterations = 10, AbortSignal support             │
-└─────────┬──────────────────────────────┬─────────────────────┘
-          │                              │
-┌─────────▼──────────┐        ┌─────────▼──────────────────────┐
-│   Scratchpad       │        │      Tools Layer               │
-│ (scratchpad.ts)    │        │   (src/tools/)                 │
-│                    │        │                                │
-│ - Append-only JSONL│        │ ┌──────────────────────────┐   │
-│ - Query tracking   │        │ │  financial_search        │   │
-│ - Tool results     │        │ │  (meta-tool with LLM     │   │
-│ - Thinking logs    │        │ │   routing)               │   │
-│ - Context building │        │ └────────┬─────────────────┘   │
-└────────────────────┘        │          │                     │
-                              │ ┌────────▼─────────────────┐   │
-                              │ │  Finance Sub-Tools       │   │
-                              │ │  - prices                │   │
-                              │ │  - fundamentals          │   │
-                              │ │  - filings               │   │
-                              │ │  - metrics               │   │
-                              │ │  - estimates             │   │
-                              │ │  - news                  │   │
-                              │ │  - crypto                │   │
-                              │ │  - insider trades        │   │
-                              │ └──────────────────────────┘   │
-                              │                                │
-                              │ ┌──────────────────────────┐   │
-                              │ │  tavily_search           │   │
-                              │ │  (web search)            │   │
-                              │ └──────────────────────────┘   │
-                              └────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                    LLM Integration Layer                     │
-│                    (src/model/llm.ts)                        │
-│                                                              │
-│  Multi-provider support via LangChain:                       │
-│  - OpenAI (gpt-5.2, gpt-4.1-mini)                           │
-│  - Anthropic (claude-3-5-sonnet, haiku)                     │
-│  - Google (gemini-2.0-flash)                                │
-│  - Ollama (local models)                                     │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Key Design Patterns
-
-1. **Context Compaction**: During agent iteration, full tool results are summarized by LLM to save tokens. Final answer generation uses full context.
-
-2. **Scratchpad Pattern**: All agent work (thinking + tool results) logged to append-only JSONL file for debugging and context management.
-
-3. **Meta-Tool Pattern**: `financial_search` uses LLM routing to select and call appropriate sub-tools based on natural language query.
-
-4. **Streaming UI**: Events (thinking, tool_start, tool_end, answer_chunk) streamed to UI in real-time for transparency.
-
----
-
-## 2. Target State: Gideon (Cybersecurity Operations Assistant)
-
-### System Overview
-Gideon is an autonomous cybersecurity operations assistant that:
+Gideon is an autonomous cybersecurity operations assistant built with TypeScript/Bun that:
 - Produces daily security briefings (CVEs, advisories, breaches)
 - Analyzes indicators of compromise (IOCs)
 - Searches vulnerability databases
@@ -104,7 +10,7 @@ Gideon is an autonomous cybersecurity operations assistant that:
 - Creates structured incident reports
 - **DEFENSIVE ONLY**: No exploit creation, intrusion tools, or offensive capabilities
 
-### Transformed Architecture
+## 2. Core Architecture
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -130,7 +36,7 @@ Gideon is an autonomous cybersecurity operations assistant that:
 │              Security Agent Core Loop                         │
 │                  (src/agent/agent.ts)                         │
 │                                                               │
-│  Enhanced with:                                               │
+│  Features:                                                    │
 │  1. Cross-source corroboration verification                   │
 │  2. Confidence scoring                                        │
 │  3. "What would change my mind" reasoning                     │
@@ -180,6 +86,17 @@ Gideon is an autonomous cybersecurity operations assistant that:
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
+│                    LLM Integration Layer                     │
+│                    (src/model/llm.ts)                        │
+│                                                              │
+│  Multi-provider support via LangChain:                       │
+│  - OpenAI (gpt-5.2, gpt-4.1-mini)                           │
+│  - Anthropic (claude-3-5-sonnet, haiku)                     │
+│  - Google (gemini-2.0-flash)                                │
+│  - Ollama (local models)                                     │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
 │                   Output Generator                           │
 │              (src/utils/output-generator.ts)                 │
 │                                                              │
@@ -190,9 +107,19 @@ Gideon is an autonomous cybersecurity operations assistant that:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### New Module Boundaries
+## 3. Key Design Patterns
 
-#### 1. **Security Connectors** (`src/tools/security/`)
+1. **Context Compaction**: During agent iteration, full tool results are summarized by LLM to save tokens. Final answer generation uses full context.
+
+2. **Scratchpad Pattern**: All agent work (thinking + tool results) logged to append-only JSONL file in `.gideon/scratchpad/` for debugging and context management.
+
+3. **Meta-Tool Pattern**: `security_search` uses LLM routing to select and call appropriate sub-tools based on natural language query.
+
+4. **Streaming UI**: Events (thinking, tool_start, tool_end, answer_chunk) streamed to UI in real-time for transparency.
+
+## 4. Module Boundaries
+
+### 4.1 Security Connectors (`src/tools/security/`)
 Each connector implements a standardized interface:
 ```typescript
 interface SecurityConnector {
@@ -203,14 +130,14 @@ interface SecurityConnector {
 }
 ```
 
-**Connectors to implement:**
+**Connectors:**
 - `cve-connector.ts`: NVD CVE API + CISA KEV catalog
 - `advisory-connector.ts`: Vendor security bulletins
 - `ioc-connector.ts`: VirusTotal, AbuseIPDB, URLScan
 - `news-connector.ts`: Security news aggregation
 - `breach-connector.ts`: Public breach data
 
-#### 2. **Command Handlers** (`src/commands/`)
+### 4.2 Command Handlers (`src/commands/`)
 Map CLI commands to agent workflows:
 - `brief-command.ts`: Daily briefing orchestration
 - `cve-command.ts`: CVE search & impact analysis
@@ -218,19 +145,17 @@ Map CLI commands to agent workflows:
 - `policy-command.ts`: Hardening checklist generation
 - `report-command.ts`: Incident report assembly
 
-#### 3. **Verification Engine** (`src/verification/`)
+### 4.3 Verification Engine (`src/verification/`)
 - `corroboration.ts`: Cross-source validation
 - `confidence.ts`: Confidence scoring
 - `assumptions.ts`: Assumption tracking
 
-#### 4. **Output System** (`src/output/`)
+### 4.4 Output System (`src/output/`)
 - `markdown-generator.ts`: Report formatting
 - `json-generator.ts`: Structured data export
 - `stix-generator.ts`: STIX 2.1 format (optional)
 
----
-
-## 3. Safety & Guardrails
+## 5. Safety & Guardrails
 
 ### Non-Negotiable Rules (Enforced in Code)
 
@@ -257,53 +182,6 @@ Map CLI commands to agent workflows:
 - Tool-level safety checks
 - Output sanitization (redact API keys, tokens)
 - Audit logging of all operations
-
----
-
-## 4. Key Architectural Changes
-
-### From Finance to Security Domain
-
-| Component | Current (Finance) | New (Security) |
-|-----------|-------------------|----------------|
-| **Tools** | financial_search, tavily_search | security_search, tavily_search |
-| **Sub-tools** | prices, fundamentals, filings, etc. | cve, advisory, ioc, news, breach |
-| **Data Sources** | Financial Datasets API, market data | NVD, CISA, VirusTotal, vendor APIs |
-| **Output** | Streaming text answer | MD report + JSON + optional STIX |
-| **Prompts** | Financial analysis tone | Security analyst tone, verification focus |
-| **Scratchpad** | .dexter/scratchpad/ | .gideon/scratchpad/ |
-| **Config** | Environment variables only | YAML config + env vars |
-| **Safety** | Basic (max iterations) | Enhanced (guardrails, verification, confidence) |
-
-### Preserved Components
-- Agent loop structure (iterations, tool execution, final answer)
-- Scratchpad pattern for work tracking
-- Multi-provider LLM support
-- Streaming UI with real-time updates
-- Context compaction strategy
-- CLI interface framework (Ink)
-
----
-
-## 5. Testing Strategy
-
-### Unit Tests
-- Connector interfaces and normalization
-- Confidence scoring logic
-- Output generators (MD, JSON, STIX)
-- Rate limiting and caching
-
-### Integration Tests
-- End-to-end command execution
-- Agent loop with mock connectors
-- Multi-source corroboration
-
-### Safety Tests
-- Guardrail enforcement
-- Offensive capability prevention
-- Data redaction validation
-
----
 
 ## 6. Deployment & Usage
 
@@ -363,15 +241,20 @@ gideon
 > What are the latest critical CVEs for Microsoft Exchange?
 ```
 
----
+## 7. Testing Strategy
 
-## Next Steps
-1. ✅ Architecture design complete
-2. Create file-by-file transformation plan
-3. Implement core refactoring
-4. Build first connector (CVE)
-5. Add command system
-6. Implement verification engine
-7. Create output generators
-8. Add tests
-9. Update documentation
+### Unit Tests
+- Connector interfaces and normalization
+- Confidence scoring logic
+- Output generators (MD, JSON, STIX)
+- Rate limiting and caching
+
+### Integration Tests
+- End-to-end command execution
+- Agent loop with mock connectors
+- Multi-source corroboration
+
+### Safety Tests
+- Guardrail enforcement
+- Offensive capability prevention
+- Data redaction validation
