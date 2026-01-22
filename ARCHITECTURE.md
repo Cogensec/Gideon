@@ -309,7 +309,7 @@ Map CLI commands to agent workflows:
 
 ### Installation
 ```bash
-git clone https://github.com/Requie/gideon.git
+git clone https://github.com/cogensec/gideon.git
 cd gideon
 bun install
 cp env.example .env
