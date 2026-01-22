@@ -17,14 +17,14 @@ interface MessagesFile {
   messages: ConversationEntry[];
 }
 
-const DEXTER_DIR = '.dexter';
+const GIDEON_DIR = '.gideon';
 const MESSAGES_DIR = 'messages';
 const MESSAGES_FILE = 'chat_history.json';
 
 /**
  * Manages persistent storage of conversation history for input history navigation.
  * Uses stack ordering (most recent first) for O(1) access to latest entries.
- * Stores messages in .dexter/messages/chat_history.json
+ * Stores messages in .gideon/messages/chat_history.json
  */
 export class LongTermChatHistory {
   private filePath: string;
@@ -32,7 +32,7 @@ export class LongTermChatHistory {
   private loaded = false;
 
   constructor(baseDir: string = process.cwd()) {
-    this.filePath = join(baseDir, DEXTER_DIR, MESSAGES_DIR, MESSAGES_FILE);
+    this.filePath = join(baseDir, GIDEON_DIR, MESSAGES_DIR, MESSAGES_FILE);
   }
 
   /**
