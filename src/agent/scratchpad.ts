@@ -35,12 +35,12 @@ export interface ScratchpadEntry {
 /**
  * Append-only scratchpad for tracking agent work on a query.
  * Uses JSONL format (newline-delimited JSON) for resilient appending.
- * Files are persisted in .dexter/scratchpad/ for debugging/history.
- * 
+ * Files are persisted in .gideon/scratchpad/ for debugging/history.
+ *
  * This is the single source of truth for all agent work on a query.
  */
 export class Scratchpad {
-  private readonly scratchpadDir = '.dexter/scratchpad';
+  private readonly scratchpadDir = '.gideon/scratchpad';
   private readonly filepath: string;
 
   constructor(query: string) {

@@ -1,3 +1,3 @@
-// Agent tools - the only two tools exposed to the main agent
-export { createFinancialSearch } from './finance/index.js';
+// Agent tools - security research and web search
+export { createSecuritySearch } from './security/index.js';
 export { tavilySearch } from './search/index.js';
