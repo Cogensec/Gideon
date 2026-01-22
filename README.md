@@ -55,7 +55,7 @@ bun --version
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/Requie/gideon.git
+git clone https://github.com/cogensec/gideon.git
 cd gideon
 ```
 
@@ -332,9 +332,8 @@ Contributions are welcome! Please follow these guidelines:
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes using the username `Requie`
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+3. **Push** to the branch (`git push origin feature/amazing-feature`)
+4. **Open** a Pull Request
 
 **Important:**
 - Keep PRs small and focused
@@ -352,16 +351,15 @@ This project is licensed under the MIT License.
 
 ## Acknowledgments
 
-- Original architecture inspired by [virattt/dexter](https://github.com/virattt/dexter)
 - Built with [LangChain](https://www.langchain.com/)
-- Powered by multiple LLM providers (OpenAI, Anthropic, Google, Ollama)
+- Powered by multiple LLM providers (OpenAI, Anthropic, Google, Ollama, Grok)
 - Security data from NVD, CISA, VirusTotal, AbuseIPDB
 
 ---
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/Requie/gideon/issues)
+- **Issues**: [GitHub Issues](https://github.com/cogensec/gideon/issues)
 - **Documentation**: See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed design
 - **Transformation Plan**: See [TRANSFORMATION_PLAN.md](TRANSFORMATION_PLAN.md)
 
