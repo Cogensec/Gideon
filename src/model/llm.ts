@@ -18,6 +18,7 @@ const FAST_MODELS: Record<string, string> = {
   anthropic: 'claude-haiku-4-5',
   google: 'gemini-3-flash-preview',
   xai: 'grok-4-1-fast-reasoning',
+  nim: 'nim:mistral-7b-instruct', // Default fast model for NIM
 };
 
 /**
@@ -84,6 +85,19 @@ const MODEL_PROVIDERS: Record<string, ModelFactory> = {
       ...opts,
       ...(process.env.OLLAMA_BASE_URL ? { baseUrl: process.env.OLLAMA_BASE_URL } : {}),
     }),
+  // NVIDIA NIM - OpenAI-compatible API for self-hosted GPU-accelerated inference
+  'nim:': (name, opts) => {
+    const nimBaseUrl = process.env.NIM_BASE_URL || 'http://localhost:8000/v1';
+    const nimApiKey = process.env.NIM_API_KEY || 'not-required'; // NIM may not require API key for local deployment
+    return new ChatOpenAI({
+      model: name.replace(/^nim:/, ''),
+      ...opts,
+      apiKey: nimApiKey,
+      configuration: {
+        baseURL: nimBaseUrl,
+      },
+    });
+  },
 };
 
 const DEFAULT_MODEL_FACTORY: ModelFactory = (name, opts) =>
