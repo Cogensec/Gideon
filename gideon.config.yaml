@@ -1,0 +1,77 @@
+# Gideon Configuration File
+# Cybersecurity Operations Assistant
+
+sources:
+  # National Vulnerability Database
+  nvd:
+    enabled: true
+    base_url: "https://services.nvd.nist.gov/rest/json/cves/2.0"
+    rate_limit: 5  # requests per second (with API key)
+    cache_ttl: 900  # 15 minutes
+
+  # CISA Known Exploited Vulnerabilities
+  cisa_kev:
+    enabled: true
+    base_url: "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+    rate_limit: 1  # requests per second
+    cache_ttl: 3600  # 1 hour
+
+  # VirusTotal
+  virustotal:
+    enabled: true
+    base_url: "https://www.virustotal.com/api/v3"
+    rate_limit: 4  # requests per minute (free tier)
+    cache_ttl: 300  # 5 minutes
+
+  # AbuseIPDB
+  abuseipdb:
+    enabled: true
+    base_url: "https://api.abuseipdb.com/api/v2"
+    rate_limit: 1000  # requests per day (free tier)
+    cache_ttl: 600  # 10 minutes
+
+output:
+  # Output formats to generate
+  formats:
+    - markdown
+    - json
+
+  # Directory for saving outputs
+  directory: ./outputs
+
+  # Include STIX format (optional)
+  include_stix: false
+
+  # Redaction of sensitive data
+  redaction:
+    enabled: true
+    patterns:
+      # API keys, tokens, passwords
+      - "(?i)(api[_-]?key|token|password|secret)\\s*[:=]\\s*['\"]?([^'\"\\s]{8,})"
+      # Bearer tokens
+      - "(?i)(bearer\\s+[a-zA-Z0-9\\-_]+\\.?[a-zA-Z0-9\\-_]*\\.?[a-zA-Z0-9\\-_]*)"
+      # Private keys
+      - "-----BEGIN.*PRIVATE KEY-----[\\s\\S]*?-----END.*PRIVATE KEY-----"
+
+agent:
+  # Maximum iterations for agent loop
+  max_iterations: 10
+
+  # Minimum confidence threshold for findings
+  confidence_threshold: 0.6
+
+  # Minimum number of sources for corroboration
+  min_corroboration_sources: 2
+
+  # Enable verification steps
+  enable_verification: true
+
+safety:
+  # Defensive mode only (blocks offensive capabilities)
+  defensive_mode: true
+
+  # Block generation of offensive content
+  block_offensive: true
+
+  # Require explicit authorization for sensitive operations
+  require_explicit_auth: false  # Set to true in production environments
