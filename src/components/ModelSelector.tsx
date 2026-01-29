@@ -30,6 +30,11 @@ const PROVIDERS: Provider[] = [
     models: ['grok-4-0709', 'grok-4-1-fast-reasoning'],
   },
   {
+    displayName: 'NVIDIA NIM',
+    providerId: 'nim',
+    models: [], // Populated dynamically from NIM API
+  },
+  {
     displayName: 'Ollama',
     providerId: 'ollama',
     models: [], // Populated dynamically from local Ollama API
@@ -114,10 +119,16 @@ interface ModelSelectorProps {
 }
 
 export function ModelSelector({ providerId, models, currentModel, onSelect }: ModelSelectorProps) {
-  // For Ollama, the currentModel is stored with "ollama:" prefix, but models list doesn't have it
-  const normalizedCurrentModel = providerId === 'ollama' && currentModel?.startsWith('ollama:')
-    ? currentModel.replace(/^ollama:/, '')
-    : currentModel;
+  // For Ollama and NIM, the currentModel is stored with prefix, but models list doesn't have it
+  const normalizedCurrentModel = (() => {
+    if (providerId === 'ollama' && currentModel?.startsWith('ollama:')) {
+      return currentModel.replace(/^ollama:/, '');
+    }
+    if (providerId === 'nim' && currentModel?.startsWith('nim:')) {
+      return currentModel.replace(/^nim:/, '');
+    }
+    return currentModel;
+  })();
 
   const [selectedIndex, setSelectedIndex] = useState(() => {
     if (normalizedCurrentModel) {
@@ -150,11 +161,16 @@ export function ModelSelector({ providerId, models, currentModel, onSelect }: Mo
         <Text color={colors.primary} bold>
           Select model for {providerName}
         </Text>
-        <Box marginTop={1}>
-          <Text color={colors.muted}>No models available. </Text>
+        <Box marginTop={1} flexDirection="column">
+          <Text color={colors.muted}>No models available.</Text>
           {providerId === 'ollama' && (
             <Text color={colors.muted}>
               Make sure Ollama is running and you have models downloaded.
+            </Text>
+          )}
+          {providerId === 'nim' && (
+            <Text color={colors.muted}>
+              Make sure NVIDIA NIM is running. Set NIM_BASE_URL in .env (default: http://localhost:8000/v1)
             </Text>
           )}
         </Box>
