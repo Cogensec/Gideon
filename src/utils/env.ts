@@ -15,6 +15,7 @@ const PROVIDERS: Record<string, ProviderConfig> = {
   anthropic: { displayName: 'Anthropic', apiKeyEnvVar: 'ANTHROPIC_API_KEY' },
   google: { displayName: 'Google', apiKeyEnvVar: 'GOOGLE_API_KEY' },
   ollama: { displayName: 'Ollama' },
+  nim: { displayName: 'NVIDIA NIM' }, // NIM may not require API key for local deployment
 };
 
 export function getApiKeyNameForProvider(providerId: string): string | undefined {

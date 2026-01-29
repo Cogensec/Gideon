@@ -3,6 +3,7 @@ import { getSetting, setSetting } from '../utils/config.js';
 import { getProviderDisplayName, checkApiKeyExistsForProvider, saveApiKeyForProvider } from '../utils/env.js';
 import { getModelsForProvider, getDefaultModelForProvider } from '../components/ModelSelector.js';
 import { getOllamaModels } from '../utils/ollama.js';
+import { getNimModels } from '../utils/nim.js';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from '../model/llm.js';
 import { InMemoryChatHistory } from '../utils/in-memory-chat-history.js';
 
@@ -111,15 +112,18 @@ export function useModelSelection(
   const handleProviderSelect = useCallback(async (providerId: string | null) => {
     if (providerId) {
       setPendingProvider(providerId);
-      
+
       // Fetch models for the provider
       if (providerId === 'ollama') {
         const ollamaModels = await getOllamaModels();
         setPendingModels(ollamaModels);
+      } else if (providerId === 'nim') {
+        const nimModels = await getNimModels();
+        setPendingModels(nimModels);
       } else {
         setPendingModels(getModelsForProvider(providerId));
       }
-      
+
       setAppState('model_select');
     } else {
       setAppState('idle');
@@ -135,14 +139,21 @@ export function useModelSelection(
       setAppState('provider_select');
       return;
     }
-    
+
     // For Ollama, skip API key flow entirely
     if (pendingProvider === 'ollama') {
       const fullModelId = `ollama:${modelId}`;
       completeModelSwitch(pendingProvider, fullModelId);
       return;
     }
-    
+
+    // For NIM, skip API key flow (uses local deployment or optional key)
+    if (pendingProvider === 'nim') {
+      const fullModelId = `nim:${modelId}`;
+      completeModelSwitch(pendingProvider, fullModelId);
+      return;
+    }
+
     // For cloud providers, check API key
     if (checkApiKeyExistsForProvider(pendingProvider)) {
       completeModelSwitch(pendingProvider, modelId);
