@@ -6,8 +6,7 @@ import { z } from 'zod';
 
 export const AgentTypeSchema = z.enum([
   'claude-code',      // Claude Code agents
-  'moltbot',          // MoltBot/Clawdbot agents
-  'openclaw',         // OpenClaw agents
+  'openclaw',         // OpenClaw agents (https://github.com/openclaw/openclaw)
   'custom-langchain', // Custom LangChain agents
   'autogen',          // Microsoft AutoGen
   'crewai',           // CrewAI agents
@@ -15,6 +14,31 @@ export const AgentTypeSchema = z.enum([
 ]);
 
 export type AgentType = z.infer<typeof AgentTypeSchema>;
+
+/**
+ * Deprecated agent types mapped to their replacements.
+ * Used for backward compatibility during migration.
+ */
+export const DEPRECATED_AGENT_TYPES: Record<string, AgentType> = {
+  'moltbot': 'openclaw',    // MoltBot/Clawdbot deprecated, use OpenClaw
+  'clawdbot': 'openclaw',   // Clawdbot deprecated, use OpenClaw
+};
+
+/**
+ * Normalize agent type, converting deprecated types to their replacements.
+ */
+export function normalizeAgentType(type: string): AgentType {
+  const normalized = type.toLowerCase();
+  if (normalized in DEPRECATED_AGENT_TYPES) {
+    return DEPRECATED_AGENT_TYPES[normalized];
+  }
+  // Validate against schema
+  const result = AgentTypeSchema.safeParse(normalized);
+  if (result.success) {
+    return result.data;
+  }
+  return 'generic';
+}
 
 export const AgentStatusSchema = z.enum([
   'active',           // Agent is running and monitored
