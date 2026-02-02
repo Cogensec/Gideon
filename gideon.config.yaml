@@ -76,6 +76,61 @@ safety:
   # Require explicit authorization for sensitive operations
   require_explicit_auth: false  # Set to true in production environments
 
+# Agent Security Governance Configuration
+governance:
+  # Enable governance features
+  enabled: true
+
+  # Agent registry settings
+  registry:
+    # Auto-activate agents from trusted sources
+    auto_activate_trusted: false
+    # Trusted agent sources (owners)
+    trusted_sources: []
+    # Maximum agents per owner
+    max_agents_per_owner: 10
+    # Stale agent threshold (minutes)
+    stale_threshold_minutes: 30
+
+  # Policy enforcement settings
+  policies:
+    # Default action when no policy matches
+    default_action: allow  # allow, deny, audit
+    # Enable real-time policy evaluation
+    realtime_evaluation: true
+    # Log all policy evaluations
+    log_all_evaluations: false
+
+  # Monitoring settings
+  monitoring:
+    # Enable behavioral profiling
+    behavioral_profiling: true
+    # Anomaly detection sensitivity (0.0-1.0)
+    anomaly_sensitivity: 0.7
+    # Activity buffer size
+    activity_buffer_size: 1000
+    # Auto-quarantine on critical violations
+    auto_quarantine_critical: true
+
+  # Access control settings
+  access_control:
+    # Default permission expiry (hours, 0 = never)
+    default_expiry_hours: 0
+    # Require justification for access requests
+    require_justification: true
+    # Auto-cleanup expired permissions
+    auto_cleanup_expired: true
+
+  # Audit settings
+  audit:
+    # Enable hash chain verification
+    hash_chain_enabled: true
+    # Log retention (days)
+    retention_days: 30
+    # Max log file size (bytes)
+    max_log_size: 10485760  # 10MB
+    # Generate compliance reports automatically
+    auto_compliance_report: false
 # Voice configuration (NVIDIA PersonaPlex)
 voice:
   # Enable voice capabilities
