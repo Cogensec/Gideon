@@ -87,6 +87,15 @@ export interface DoneEvent {
 }
 
 /**
+ * NeMo Guardrail was triggered (input or output blocked)
+ */
+export interface GuardrailTriggeredEvent {
+  type: 'guardrail_triggered';
+  rail: string;
+  reason: string;
+}
+
+/**
  * Union type for all agent events
  */
 export type AgentEvent =
@@ -96,4 +105,5 @@ export type AgentEvent =
   | ToolErrorEvent
   | AnswerStartEvent
   | AnswerChunkEvent
-  | DoneEvent;
+  | DoneEvent
+  | GuardrailTriggeredEvent;

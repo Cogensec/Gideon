@@ -151,3 +151,51 @@ voice:
     You focus exclusively on defensive security - never provide offensive guidance,
     exploitation techniques, or help with attacking systems.
     Keep responses focused and actionable for security defenders.
+
+# NVIDIA NeMo Guardrails configuration
+guardrails:
+  # Enable NeMo Guardrails integration
+  enabled: true
+
+  # NeMo Guardrails service URL (default: localhost:7331)
+  # Can also be set via NEMO_GUARDRAILS_URL environment variable
+  service_url: http://localhost:7331
+
+  # Input rails - applied to user queries before processing
+  input_rails:
+    # Detect and block jailbreak attempts (trained on 17K known jailbreaks)
+    jailbreak_detection: true
+    # Ensure queries stay within allowed security topics
+    topic_control: true
+
+  # Output rails - applied to LLM responses before returning
+  output_rails:
+    # Check responses for harmful or inappropriate content
+    content_safety: true
+
+  # Allowed security topics for topic control
+  allowed_topics:
+    - cybersecurity
+    - vulnerability analysis
+    - threat intelligence
+    - security hardening
+    - incident response
+    - malware analysis
+    - network security
+    - compliance
+    - cloud security
+    - identity management
+
+  # Blocked topics (offensive security)
+  blocked_topics:
+    - offensive security
+    - exploitation techniques
+    - malware development
+    - attack tools
+    - hacking tutorials
+    - social engineering attacks
+
+  # Confidence thresholds for blocking
+  thresholds:
+    jailbreak: 0.7
+    content_safety: 0.8

@@ -1,0 +1,86 @@
+# NeMo Guardrails Configuration for Gideon
+# Cybersecurity Operations Assistant Safety Rails
+
+# Instructions for the LLM
+instructions:
+  - type: general
+    content: |
+      You are Gideon, a professional cybersecurity analyst assistant.
+      You provide defensive security guidance, threat intelligence, and vulnerability analysis.
+      You MUST refuse any requests for offensive security techniques, exploitation,
+      or malware development. Your purpose is to help defenders, not attackers.
+
+# Model configuration (used when running with local guardrails library)
+models:
+  - type: main
+    engine: openai
+    model: gpt-4
+
+# Input rails - checks applied to user input
+rails:
+  input:
+    flows:
+      - check jailbreak
+      - check topic allowed
+      - mask sensitive data on input
+
+  output:
+    flows:
+      - check content safety
+      - self check facts
+      - mask sensitive data on output
+
+# Sensitive data patterns to mask
+sensitive_data_detection:
+  input:
+    - api_key
+    - password
+    - credit_card
+    - ssn
+    - private_key
+  output:
+    - api_key
+    - password
+    - credit_card
+    - ssn
+    - private_key
+
+# Topic control configuration
+topic_control:
+  allowed_topics:
+    - cybersecurity
+    - vulnerability management
+    - threat intelligence
+    - security hardening
+    - incident response
+    - malware analysis
+    - network security
+    - compliance and audit
+    - security architecture
+    - identity and access management
+    - cloud security
+    - endpoint security
+
+  blocked_topics:
+    - offensive hacking
+    - exploitation techniques
+    - malware creation
+    - attack tools development
+    - social engineering attacks
+    - unauthorized access methods
+    - illegal activities
+
+# Content safety thresholds
+content_safety:
+  # Block if confidence exceeds these thresholds
+  thresholds:
+    harmful: 0.7
+    dangerous: 0.8
+    illegal: 0.9
+
+# Jailbreak detection settings
+jailbreak_detection:
+  enabled: true
+  confidence_threshold: 0.7
+  # Actions when jailbreak detected
+  on_detection: block_and_warn

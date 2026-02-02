@@ -8,6 +8,13 @@ import { extractTextContent, hasToolCalls } from '../utils/ai-message.js';
 import { streamLlmResponse } from '../utils/llm-stream.js';
 import { InMemoryChatHistory } from '../utils/in-memory-chat-history.js';
 import { getToolDescription } from '../utils/tool-description.js';
+import {
+  checkInputRails,
+  checkOutputRails,
+  getGuardrailsConfig,
+  localJailbreakCheck,
+  localTopicCheck,
+} from '../utils/nemo-guardrails.js';
 import type { AgentConfig, AgentEvent, ToolStartEvent, ToolEndEvent, ToolErrorEvent, AnswerStartEvent, AnswerChunkEvent } from '../agent/types.js';
 
 
@@ -60,6 +67,31 @@ export class Agent {
     if (this.tools.length === 0) {
       yield { type: 'done', answer: 'No tools available. Please check your API key configuration.', toolCalls: [], iterations: 0 };
       return;
+    }
+
+    // NeMo Guardrails: Check input rails before processing
+    const guardrailsConfig = getGuardrailsConfig();
+    if (guardrailsConfig.enabled) {
+      // First try NeMo Guardrails service
+      const inputCheck = await checkInputRails(query);
+      if (!inputCheck.allowed) {
+        yield { type: 'guardrail_triggered', rail: inputCheck.railTriggered || 'input_rail', reason: inputCheck.reason || 'Input blocked by guardrails' };
+        yield { type: 'done', answer: this.getGuardrailBlockMessage(inputCheck.railTriggered, inputCheck.reason), toolCalls: [], iterations: 0 };
+        return;
+      }
+
+      // Fallback to local checks if service unavailable
+      if (localJailbreakCheck(query)) {
+        yield { type: 'guardrail_triggered', rail: 'jailbreak_detection', reason: 'Potential jailbreak attempt detected' };
+        yield { type: 'done', answer: this.getGuardrailBlockMessage('jailbreak_detection', 'I cannot process requests that attempt to bypass my safety guidelines.'), toolCalls: [], iterations: 0 };
+        return;
+      }
+
+      if (!localTopicCheck(query)) {
+        yield { type: 'guardrail_triggered', rail: 'topic_control', reason: 'Request is outside allowed security topics' };
+        yield { type: 'done', answer: this.getGuardrailBlockMessage('topic_control', 'I\'m designed for defensive security only. I cannot provide offensive security guidance, exploitation techniques, or help with attacking systems.'), toolCalls: [], iterations: 0 };
+        return;
+      }
     }
 
     // Create scratchpad for this query - single source of truth for all work done
@@ -311,5 +343,38 @@ export class Agent {
         return `### ${description}\n${ctx.result}`;
       }
     }).join('\n\n');
+  }
+
+  /**
+   * Check output content with NeMo Guardrails before returning to user
+   */
+  private async checkOutputGuardrails(answer: string): Promise<{ allowed: boolean; reason?: string }> {
+    const guardrailsConfig = getGuardrailsConfig();
+    if (!guardrailsConfig.enabled) {
+      return { allowed: true };
+    }
+
+    const outputCheck = await checkOutputRails(answer);
+    return {
+      allowed: outputCheck.allowed,
+      reason: outputCheck.reason,
+    };
+  }
+
+  /**
+   * Get appropriate message when a guardrail blocks a request
+   */
+  private getGuardrailBlockMessage(rail?: string, reason?: string): string {
+    const messages: Record<string, string> = {
+      jailbreak_detection: 'I notice you may be trying to bypass my guidelines. I\'m Gideon, a defensive security assistant. My safety guidelines are core to my function. I\'m happy to help with legitimate cybersecurity questions.',
+      topic_control: 'I\'m designed exclusively for defensive security. I cannot provide exploitation guidance, attack code, or help compromise systems. I can help you understand vulnerabilities from a defensive perspective and recommend mitigations.',
+      content_safety: 'I\'ve filtered my response as it may have contained inappropriate content. Please rephrase your question and I\'ll do my best to help with your security needs.',
+    };
+
+    if (rail && messages[rail]) {
+      return messages[rail];
+    }
+
+    return reason || 'Your request was blocked by safety guardrails. Please rephrase your question focusing on defensive security topics.';
   }
 }
