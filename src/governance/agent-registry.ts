@@ -6,6 +6,8 @@ import {
   AgentRegistrationSchema,
   AgentType,
   AgentStatus,
+  normalizeAgentType,
+  DEPRECATED_AGENT_TYPES,
 } from './types';
 
 const REGISTRY_DIR = '.gideon/governance';
@@ -65,7 +67,7 @@ export class AgentRegistry {
    */
   registerAgent(params: {
     name: string;
-    type: AgentType;
+    type: AgentType | string;
     owner: string;
     capabilities: string[];
     description?: string;
@@ -82,11 +84,28 @@ export class AgentRegistry {
       throw new Error(`Agent with name "${params.name}" already registered`);
     }
 
+    // Normalize agent type (handles deprecated types like moltbot -> openclaw)
+    const originalType = params.type;
+    const normalizedType = normalizeAgentType(params.type);
+    const wasDeprecated = originalType.toLowerCase() in DEPRECATED_AGENT_TYPES;
+
     const now = new Date().toISOString();
+    const metadata = { ...params.metadata } || {};
+
+    // Track deprecated type migration
+    if (wasDeprecated) {
+      metadata.migratedFrom = originalType;
+      metadata.migrationNote = `Deprecated type '${originalType}' automatically migrated to '${normalizedType}'`;
+      console.warn(
+        `[Gideon Governance] Warning: Agent type '${originalType}' is deprecated. ` +
+        `Automatically migrated to '${normalizedType}'. Please update your configuration.`
+      );
+    }
+
     const agent: AgentRegistration = {
       id: uuidv4(),
       name: params.name,
-      type: params.type,
+      type: normalizedType,
       version: params.version,
       owner: params.owner,
       description: params.description,
@@ -96,7 +115,7 @@ export class AgentRegistry {
       status: 'pending',
       registeredAt: now,
       lastSeenAt: now,
-      metadata: params.metadata,
+      metadata,
     };
 
     // Validate against schema
