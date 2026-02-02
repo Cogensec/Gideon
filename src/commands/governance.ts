@@ -641,13 +641,16 @@ Centralized security governance for AI agents.
 \`governance health\`              - Show agent health statuses
 
 ## Agent Types
-- claude-code   : Claude Code agents
-- moltbot       : MoltBot/Clawdbot agents
-- openclaw      : OpenClaw agents
+- claude-code      : Claude Code agents
+- openclaw         : OpenClaw agents (https://github.com/openclaw/openclaw)
 - custom-langchain : Custom LangChain agents
-- autogen       : Microsoft AutoGen
-- crewai        : CrewAI agents
-- generic       : Generic/unknown agents
+- autogen          : Microsoft AutoGen
+- crewai           : CrewAI agents
+- generic          : Generic/unknown agents
+
+## Deprecated Types (auto-migrated)
+- moltbot  -> openclaw
+- clawdbot -> openclaw
 `;
 
   return Promise.resolve({ success: true, output });

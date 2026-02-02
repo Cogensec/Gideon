@@ -13,8 +13,9 @@
  * - Audit Logger: Immutable audit trail for compliance
  */
 
-// Types
+// Types and utilities
 export * from './types';
+export { normalizeAgentType, DEPRECATED_AGENT_TYPES } from './types';
 
 // Agent Registry
 export { AgentRegistry, getAgentRegistry, resetAgentRegistry } from './agent-registry';
