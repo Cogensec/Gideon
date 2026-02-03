@@ -18,8 +18,10 @@ const FAST_MODELS: Record<string, string> = {
   anthropic: 'claude-haiku-4-5',
   google: 'gemini-3-flash-preview',
   xai: 'grok-4-1-fast-reasoning',
+  openrouter: 'openrouter:google/gemini-2.0-flash-001',
   nim: 'nim:mistral-7b-instruct', // Default fast model for NIM
 };
+
 
 /**
  * Gets the fast model variant for the given provider.
@@ -98,7 +100,23 @@ const MODEL_PROVIDERS: Record<string, ModelFactory> = {
       },
     });
   },
+  // OpenRouter - Unified API for 400+ models from multiple providers
+  'openrouter:': (name, opts) => {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      throw new Error('OPENROUTER_API_KEY not found. Get one at https://openrouter.ai/keys');
+    }
+    return new ChatOpenAI({
+      model: name.replace(/^openrouter:/, ''),
+      ...opts,
+      apiKey,
+      configuration: {
+        baseURL: 'https://openrouter.ai/api/v1',
+      },
+    });
+  },
 };
+
 
 const DEFAULT_MODEL_FACTORY: ModelFactory = (name, opts) =>
   new ChatOpenAI({
