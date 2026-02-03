@@ -76,6 +76,18 @@ safety:
   # Require explicit authorization for sensitive operations
   require_explicit_auth: false  # Set to true in production environments
 
+# OpenRouter Configuration (Unified API for 400+ models)
+openrouter:
+  # Enable OpenRouter integration
+  enabled: true
+
+  # API base URL (default: https://openrouter.ai/api/v1)
+  base_url: "https://openrouter.ai/api/v1"
+
+  # Cache TTL for model list (seconds)
+  cache_ttl: 900  # 15 minutes
+
+
 # Agent Security Governance Configuration
 governance:
   # Enable governance features

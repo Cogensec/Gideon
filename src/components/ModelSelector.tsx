@@ -30,6 +30,11 @@ const PROVIDERS: Provider[] = [
     models: ['grok-4-0709', 'grok-4-1-fast-reasoning'],
   },
   {
+    displayName: 'OpenRouter (400+ models)',
+    providerId: 'openrouter',
+    models: [], // Populated dynamically from OpenRouter API
+  },
+  {
     displayName: 'NVIDIA NIM',
     providerId: 'nim',
     models: [], // Populated dynamically from NIM API
@@ -40,6 +45,7 @@ const PROVIDERS: Provider[] = [
     models: [], // Populated dynamically from local Ollama API
   },
 ];
+
 
 export function getModelsForProvider(providerId: string): string[] {
   const provider = PROVIDERS.find((p) => p.providerId === providerId);
