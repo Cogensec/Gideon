@@ -35,14 +35,82 @@ bun test:watch
 ```
 src/
 ├── agent/          # Agent loop implementation (ReAct pattern)
-├── commands/       # CLI commands (brief, cve, ioc, policy, voice, analyze, rapids)
+├── commands/       # CLI commands (brief, cve, ioc, policy, skills)
 ├── components/     # Ink React components for terminal UI
 ├── connectors/     # External API connectors (NVD, VirusTotal, AbuseIPDB)
 ├── guardrails/     # NeMo Guardrails config (config.yml, security-rails.co)
 ├── model/          # LLM provider setup (OpenAI, Anthropic, Google, Ollama, NIM)
+├── skills/         # Modular skill system (see Skills Architecture)
 ├── tools/          # LangChain tools for security operations
-└── utils/          # Utilities (nim.ts, personaplex.ts, nemo-guardrails.ts, morpheus.ts, rapids.ts)
+└── utils/          # Utilities (nim.ts, personaplex.ts, morpheus.ts, rapids.ts)
 ```
+
+## Skills Architecture
+
+Gideon uses a modular skills system. Each skill is self-contained with commands, tools, and lifecycle hooks.
+
+```
+src/skills/
+├── index.ts              # Skill registry and initialization
+├── types.ts              # Skill interface definitions
+├── registry.ts           # Skill management
+├── security-research/    # Bug bounty, pentest, security research
+├── threat-detection/     # Morpheus-powered threat detection
+├── data-analytics/       # RAPIDS-powered data processing
+├── code-scanning/        # Static analysis, vulnerability scanning
+├── voice/                # PersonaPlex speech-to-speech
+└── governance/           # Access control, audit logging
+```
+
+### Adding a New Skill
+
+```typescript
+// src/skills/my-skill/index.ts
+import { Skill, SkillCommand } from '../types.js';
+
+const commands: SkillCommand[] = [
+  {
+    name: 'my-command',
+    description: 'What it does',
+    usage: 'my-command <arg>',
+    execute: async (args, ctx) => {
+      return { success: true, output: 'Result' };
+    },
+  },
+];
+
+export const mySkill: Skill = {
+  metadata: {
+    id: 'my-skill',
+    name: 'My Skill',
+    description: 'What this skill does',
+    version: '1.0.0',
+    category: 'utility',
+    capabilities: {
+      providesTools: false,
+      requiresGpu: false,
+      supportsCpuFallback: true,
+      stateful: false,
+      requiresExternalService: false,
+    },
+  },
+  commands,
+  async isAvailable() { return true; },
+};
+
+// Register in src/skills/index.ts
+```
+
+### Built-in Skills
+
+| Skill | Category | Description |
+|-------|----------|-------------|
+| security-research | security-research | Bug bounty, pentest workflows |
+| threat-detection | threat-detection | Morpheus threat detection |
+| data-analytics | data-analytics | RAPIDS data processing |
+| code-scanning | code-analysis | Static vulnerability scanning |
+| voice | voice | PersonaPlex speech AI |
+| governance | governance | Access control, audit logs |
 
 ## Code Style
 

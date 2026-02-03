@@ -8,4 +8,5 @@ export { rapidsCommand } from './rapids.js';
 export { handleScanCommand } from './scan.js';
 export { handleGovernanceCommand } from './governance.js';
 export { handleGideonCommand } from './gideon.js';
+export { handleSkillsCommand, skillsCommand } from './skills.js';
 export * from './types.js';
