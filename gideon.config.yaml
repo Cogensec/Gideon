@@ -199,3 +199,41 @@ guardrails:
   thresholds:
     jailbreak: 0.7
     content_safety: 0.8
+
+# NVIDIA Morpheus configuration (Threat Detection AI)
+morpheus:
+  # Enable Morpheus integration
+  enabled: true
+
+  # Morpheus server URL
+  server_url: http://localhost:8080
+
+  # Available pipelines
+  pipelines:
+    # Digital Fingerprinting - Detect anomalous user/system behavior
+    digital_fingerprinting:
+      enabled: true
+      model: dfp-cloudtrail
+      # Anomaly score threshold (0.0-1.0)
+      anomaly_threshold: 0.7
+
+    # DGA Detection - Identify malware domain generation algorithms
+    dga_detection:
+      enabled: true
+      model: dga-lstm
+      # Confidence threshold for flagging domains
+      confidence_threshold: 0.8
+
+    # Phishing Detection - NLP-based email analysis
+    phishing_detection:
+      enabled: true
+      model: phishing-bert
+      # Confidence threshold for phishing classification
+      confidence_threshold: 0.75
+
+    # Ransomware Detection - Behavioral pattern detection
+    ransomware_detection:
+      enabled: true
+      model: ransomware-appshield
+      # Confidence threshold for ransomware detection
+      confidence_threshold: 0.85
