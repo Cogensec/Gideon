@@ -3,4 +3,7 @@ export { cveCommand } from './cve.js';
 export { iocCommand } from './ioc.js';
 export { policyCommand } from './policy.js';
 export { voiceCommand, speakText } from './voice.js';
+export { handleScanCommand } from './scan.js';
+export { handleGovernanceCommand } from './governance.js';
+export { handleGideonCommand } from './gideon.js';
 export * from './types.js';
