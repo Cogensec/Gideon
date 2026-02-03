@@ -237,3 +237,65 @@ morpheus:
       model: ransomware-appshield
       # Confidence threshold for ransomware detection
       confidence_threshold: 0.85
+
+# NVIDIA RAPIDS configuration (Accelerated Data Processing)
+rapids:
+  # Enable RAPIDS integration
+  enabled: true
+
+  # RAPIDS server URL
+  server_url: http://localhost:8090
+
+  # Processing settings
+  processing:
+    # Batch size for parallel processing
+    batch_size: 10000
+    # GPU memory limit
+    memory_limit: 8GB
+
+  # Analytics settings
+  analytics:
+    # Anomaly detection threshold (0.0-1.0)
+    anomaly_threshold: 0.8
+    # Minimum cluster size for threat clustering
+    min_cluster_size: 5
+    # Maximum graph traversal depth
+    max_graph_depth: 10
+
+  # Available operations
+  operations:
+    # Batch IOC analysis with cuDF
+    batch_ioc:
+      enabled: true
+      # Enable threat intel enrichment
+      enrichment: true
+      # Deduplicate indicators
+      dedup: true
+
+    # Event correlation with cuGraph
+    correlation:
+      enabled: true
+      # Time window for correlation
+      time_window: 24h
+      # Minimum chain length to report
+      min_chain_length: 3
+
+    # Threat clustering with cuML
+    clustering:
+      enabled: true
+      # Default algorithm: dbscan, hdbscan, kmeans
+      algorithm: hdbscan
+
+    # Network graph analysis with cuGraph
+    graph_analysis:
+      enabled: true
+      # Detect lateral movement paths
+      detect_lateral_movement: true
+      # Find central/high-risk nodes
+      find_central_nodes: true
+
+    # Anomaly detection with cuML
+    anomaly_detection:
+      enabled: true
+      # Default method: isolation_forest, local_outlier_factor, autoencoder
+      method: isolation_forest
