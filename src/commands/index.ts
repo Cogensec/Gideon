@@ -5,4 +5,7 @@ export { policyCommand } from './policy.js';
 export { voiceCommand, speakText } from './voice.js';
 export { analyzeCommand } from './analyze.js';
 export { rapidsCommand } from './rapids.js';
+export { handleScanCommand } from './scan.js';
+export { handleGovernanceCommand } from './governance.js';
+export { handleGideonCommand } from './gideon.js';
 export * from './types.js';
