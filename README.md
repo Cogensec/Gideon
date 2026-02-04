@@ -2,8 +2,7 @@
 
 Gideon is an autonomous cybersecurity operations assistant that performs security research using task planning, self-reflection, and real-time threat intelligence data. Built for defensive security operations - detection, mitigation, and protection.
 
-<img src="https://img.shields.io/badge/Security-Defensive%20Only-green" alt="Defensive Security"/>
-<img src="https://img.shields.io/badge/License-MIT-blue" alt="MIT License"/>
+<img src="https://img.shields.io/badge/Security-Defensive%20Only-green" alt="Defensive Security"/><img src="https://img.shields.io/badge/License-MIT-blue" alt="MIT License"/>
 
 ## Overview
 
