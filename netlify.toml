@@ -1,0 +1,21 @@
+# netlify.toml
+
+[build]
+  base = "docs"
+  command = "bun run build"
+  publish = "dist"
+
+[build.environment]
+  BUN_VERSION = "1.3.6"
+
+[[redirects]]
+  # Since base is /docs, we redirect to ensure Astro handles the paths
+  from = "/docs/*"
+  to = "/docs/:splat"
+  status = 200
+
+[[redirects]]
+  # Redirect root to /docs if it's a dedicated docs site
+  from = "/"
+  to = "/docs/"
+  status = 301
