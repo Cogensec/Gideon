@@ -2,7 +2,7 @@
 
 [build]
   base = "docs"
-  command = "bun run build"
+  command = "bun run build && mv dist dist_temp && mkdir dist && mv dist_temp dist/docs"
   publish = "dist"
 
 [build.environment]
