@@ -9,6 +9,10 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Gideon Docs 🛡️',
+			logo: {
+				src: './src/assets/logo.png',
+			},
+			favicon: '/favicon.png',
 			customCss: [
 				'./src/styles/custom.css',
 			],
@@ -32,17 +36,25 @@ export default defineConfig({
 				},
 				{
 					label: 'Features',
-					autogenerate: { directory: 'features' },
+					items: [
+						{ label: 'Configuration Reference', link: 'features/configuration' },
+						{ label: 'Security Connectors', link: 'features/security-connectors' },
+						{ label: 'NVIDIA AI Integrations', link: 'features/nvidia-ai' },
+						{ label: 'Advanced Capabilities', link: 'features/advanced-capabilities' },
+					],
 				},
 				{
 					label: 'Skills',
-					autogenerate: { directory: 'skills' },
+					items: [
+						{ label: 'Custom Skills', link: 'skills/custom-skills' },
+					],
 				},
 				{
 					label: 'Community',
 					items: [
 						{ label: 'Contributing', link: 'community/contributing' },
 						{ label: 'License', link: 'community/license' },
+						{ label: 'Roadmap', link: 'community/roadmap' },
 					],
 				},
 			],
