@@ -4,11 +4,13 @@ import { z } from 'zod';
 import { callLlm } from '../../model/llm.js';
 import { CVEConnector } from './cve-connector.js';
 import { IOCConnector } from './ioc-connector.js';
+import { ExaConnector } from './exa-connector.js';
 import { getCurrentDate } from '../../agent/prompts.js';
 
 const SECURITY_CONNECTORS = [
   CVEConnector,
   IOCConnector,
+  ExaConnector,
 ];
 
 const SecuritySearchInputSchema = z.object({
@@ -28,10 +30,10 @@ Given a user's query about cybersecurity, call the appropriate security connecto
    - Example queries: "latest critical CVEs", "CVE-2024-1234 details", "log4j vulnerabilities"
    - Focus: Vulnerability information, CVSS scores, affected products, mitigations
 
-2. **ioc_connector**: Indicator of Compromise analysis
-   - Use for: IP addresses, domains, URLs, file hashes
-   - Example queries: "8.8.8.8 reputation", "is malicious-domain.com safe", "hash analysis"
-   - Focus: Reputation scores, malicious detections, threat intelligence
+3. **exa_connector**: Deep technical research via Exa AI
+   - Use for: obscure vulnerability write-ups, security blog posts, technical research
+   - Example queries: "XZ Utils backdoor technical analysis", "rare exploitation techniques for kernel heap", "security research on HTTP/2 rapid reset"
+   - Focus: In-depth technical articles, semantic search across security blogs and academic papers
 
 ## Guidelines
 
@@ -50,6 +52,7 @@ Given a user's query about cybersecurity, call the appropriate security connecto
 - May require multiple connectors
 - Prioritize most relevant connector first
 - For broad queries like "latest threats", use cve_connector
+- For deep technical exploration or "how it works" research, use exa_connector
 
 **SAFETY CONSTRAINTS:**
 - NEVER provide exploitation techniques or attack methodologies

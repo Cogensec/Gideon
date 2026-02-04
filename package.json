@@ -23,6 +23,7 @@
     "@langchain/tavily": "^1.0.1",
     "bottleneck": "^2.19.5",
     "dotenv": "^17.2.3",
+    "exa-js": "^2.3.0",
     "ink": "^6.5.1",
     "ink-spinner": "^5.0.0",
     "ink-text-input": "^6.0.0",
