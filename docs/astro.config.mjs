@@ -37,8 +37,10 @@ export default defineConfig({
 				{
 					label: 'Features',
 					items: [
+						{ label: 'Configuration Reference', link: 'features/configuration' },
 						{ label: 'Security Connectors', link: 'features/security-connectors' },
 						{ label: 'NVIDIA AI Integrations', link: 'features/nvidia-ai' },
+						{ label: 'Advanced Capabilities', link: 'features/advanced-capabilities' },
 					],
 				},
 				{
@@ -52,6 +54,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Contributing', link: 'community/contributing' },
 						{ label: 'License', link: 'community/license' },
+						{ label: 'Roadmap', link: 'community/roadmap' },
 					],
 				},
 			],
