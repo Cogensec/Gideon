@@ -1,0 +1,36 @@
+---
+title: Gideon Docs
+description: Your autonomous cybersecurity operations assistant.
+template: splash
+hero:
+  tagline: Autonomous security research powered by task planning and self-reflection.
+  image:
+    file: ../../assets/houston.webp
+  actions:
+    - text: Get Started
+      link: /docs/getting-started/quickstart/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/cogensec/gideon
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Why Gideon?
+
+<CardGrid stagger>
+	<Card title="Autonomous Research" icon="pencil">
+		Turns complex security questions into clear, step-by-step research plans with live threat intelligence.
+	</Card>
+	<Card title="Defensive Only" icon="setting">
+		A strict mandate focused on detection, mitigation, and protection—built by defenders for defenders.
+	</Card>
+	<Card title="GPU Accelerated" icon="add-document">
+		Seamless integration with the NVIDIA AI stack (NIM, Morpheus, RAPIDS) for high-performance operations.
+	</Card>
+	<Card title="Multi-Model Support" icon="open-book">
+		Unified access to 400+ models via OpenRouter, with fallback support for local Ollama instances.
+	</Card>
+</CardGrid>
