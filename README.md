@@ -114,6 +114,12 @@ Real-time analysis using NVIDIA Morpheus pipelines.
 Multi-layer protection using NVIDIA NeMo Guardrails.
 - **Features**: Jailbreak detection, topic steering, self-correction, and audit logging.
 
+### 🔐 OpenClaw Sentinel
+Comprehensive security sidecar for OpenClaw agent deployments.
+- **Commands**: `openclaw-init`, `openclaw-status`, `openclaw-audit`, `openclaw-scan-skill <name>`, `openclaw-scan-injection <content>`, `openclaw-report`.
+- **Security Modules**: Gateway Sentinel, Skill Scanner, Prompt Injection Defense, Hardening Auditor, Credential Guard, Memory Monitor.
+- **CVE Coverage**: CVE-2026-25253, CVE-2026-24763, CVE-2026-25157, CVE-2026-22708, ClawHavoc campaign.
+
 ---
 
 ## Usage
