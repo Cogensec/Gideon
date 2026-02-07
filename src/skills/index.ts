@@ -12,6 +12,7 @@ import { dataAnalyticsSkill } from './data-analytics/index.js';
 import { codeScanningSkill } from './code-scanning/index.js';
 import { voiceSkill } from './voice/index.js';
 import { governanceSkill } from './governance/index.js';
+import { openclawSentinelSkill } from './openclaw-sentinel/index.js';
 
 import { skillRegistry } from './registry.js';
 import { Skill } from './types.js';
@@ -27,6 +28,7 @@ export const builtInSkills: Skill[] = [
   codeScanningSkill,
   voiceSkill,
   governanceSkill,
+  openclawSentinelSkill,
 ];
 
 // Re-export individual skills
@@ -37,6 +39,7 @@ export {
   codeScanningSkill,
   voiceSkill,
   governanceSkill,
+  openclawSentinelSkill,
 };
 
 // ============================================================================
