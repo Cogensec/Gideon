@@ -7,8 +7,11 @@ description: Key features of Gideon.
 
 Explore the core features that make Gideon a powerful cybersecurity assistant.
 
-- **[CVE Research](/docs/features/cve-research)**: In-depth vulnerability analysis.
-- **[IOC Analysis](/docs/features/ioc-analysis)**: Automated reputation checking.
-- **[Security Briefings](/docs/features/briefings)**: Stay ahead with daily intel.
+- **[CVE Research](/docs/features/cve-research)**: In-depth vulnerability analysis from NVD and CISA KEV.
+- **[IOC Analysis](/docs/features/ioc-analysis)**: Automated reputation checking via VirusTotal and AbuseIPDB.
+- **[Security Briefings](/docs/features/briefings)**: Stay ahead with automated daily intelligence summaries.
+- **[OpenClaw Sentinel](/docs/features/openclaw-sentinel)**: Comprehensive security sidecar for OpenClaw agent deployments.
+- **[NVIDIA AI Integration](/docs/features/nvidia-ai)**: GPU-accelerated threat detection with Morpheus, NIM, and RAPIDS.
+- **[Configuration Reference](/docs/features/configuration)**: Complete guide to `gideon.config.yaml`.
 
-*More features coming soon!*
+Explore each feature to learn how Gideon can enhance your security operations.

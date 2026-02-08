@@ -61,8 +61,19 @@ You can also run specific security tasks directly from the CLI:
 - **CVE Lookup**: `bun start cve CVE-2024-1234`
 - **IOC Reputation**: `bun start ioc 8.8.8.8`
 
+### OpenClaw Sentinel (Optional)
+If you're running OpenClaw agents, initialize the security sidecar:
+
+```bash
+openclaw-init
+```
+
+This enables gateway traffic monitoring, skill scanning, prompt injection defense, and credential protection for your OpenClaw deployment.
+
 ---
 
 ## What's Next?
 
-Learn more about Gideon's [Core Architecture](/docs/architecture/core-concepts) or explore the [Modular Skill System](/docs/skills/overview).
+- Learn more about Gideon's [Core Architecture](/docs/architecture/core-concepts)
+- Explore the [Modular Skills System](/docs/skills/)
+- Set up [OpenClaw Sentinel](/docs/features/openclaw-sentinel) for agent security

@@ -311,3 +311,97 @@ rapids:
       enabled: true
       # Default method: isolation_forest, local_outlier_factor, autoencoder
       method: isolation_forest
+
+# ============================================================================
+# OpenClaw Sidecar Security Platform
+# ============================================================================
+# Gideon security sidecar for OpenClaw agent deployments.
+# Provides comprehensive security monitoring, threat detection, and hardening
+# for self-hosted OpenClaw instances.
+#
+# Addresses:
+# - CVE-2026-25253 (One-click RCE via token exfiltration, CVSS 8.8)
+# - CVE-2026-24763 (Command injection)
+# - CVE-2026-25157 (Second command injection)
+# - CVE-2026-22708 (Indirect prompt injection via web browsing)
+# - ClawHavoc campaign (800+ malicious ClawHub skills)
+# - Plaintext credential storage
+# - Memory poisoning attacks
+openclaw:
+  # Enable the OpenClaw security sidecar
+  enabled: true
+
+  # Gateway connection settings
+  gateway:
+    # WebSocket URL of the OpenClaw gateway
+    gateway_url: "ws://127.0.0.1:18789"
+    # Authentication token (prefer OPENCLAW_GATEWAY_TOKEN env var)
+    # auth_token: ""
+    # How the gateway is bound: localhost, lan, tailnet, custom
+    bind_mode: localhost
+    # Path to OpenClaw home directory
+    openclaw_home: "~/.openclaw"
+    # Reconnection interval (ms)
+    reconnect_interval_ms: 5000
+    # Maximum reconnection attempts
+    max_reconnect_attempts: 10
+
+  # Gateway Sentinel (Workstream 1) - Real-time traffic analysis
+  sentinel:
+    enabled: true
+    # Monitor WebSocket traffic for attack patterns
+    monitor_traffic: true
+    # Build behavioral profiles for session anomaly detection
+    behavioral_profiling: true
+    # Auto-respond to critical threats (quarantine/kill session)
+    auto_response: false
+    # Detect CVE-2026-25253 kill chain patterns
+    detect_cve_2026_25253: true
+
+  # ClawHub Skill Scanner (Workstream 2) - Skill vetting
+  skill_scanner:
+    enabled: true
+    # Scan skills before installation
+    scan_before_install: true
+    # Block skills with critical findings
+    block_critical: true
+    # Cross-reference IOCs with VirusTotal/AbuseIPDB
+    check_iocs: true
+    # Analyze publisher account reputation
+    publisher_analysis: true
+
+  # Prompt Injection Defense (Workstream 3) - Injection detection
+  injection_defense:
+    enabled: true
+    # Scan web content ingested by agent browser
+    scan_web_content: true
+    # Scan incoming messages from messaging channels
+    scan_messages: true
+    # Scan memory files for poisoning
+    scan_memory: true
+    # Detect CSS-hidden instructions (CVE-2026-22708)
+    detect_hidden_instructions: true
+    # Confidence threshold for blocking (0.0-1.0)
+    confidence_threshold: 0.7
+
+  # Hardening Auditor (Workstream 4) - Configuration security
+  hardening_auditor:
+    enabled: true
+    # Periodic scan interval in minutes (0 = manual only)
+    scan_interval_minutes: 60
+    # Alert on configuration drift from last audit
+    detect_drift: true
+    # Check for internet exposure via Censys/Shodan
+    check_exposure: true
+
+  # Credential Guard (Workstream 5) - Data protection
+  credential_guard:
+    enabled: true
+    # Monitor access to credential files
+    monitor_credentials: true
+    # Detect read-then-exfil patterns
+    detect_exfiltration: true
+    # Redact sensitive data in outbound communications
+    redact_outbound: true
+    # Audit plaintext credential storage
+    audit_storage: true
