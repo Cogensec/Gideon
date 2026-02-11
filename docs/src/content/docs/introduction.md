@@ -23,6 +23,8 @@ In a world of rapidly evolving threats, security teams are often overwhelmed by 
 - **Multi-Model**: Access to 400+ models via OpenRouter.
 - **Daily Briefings**: Stay updated with automated security summaries.
 - **Policy Generation**: Hardening checklists for the major cloud providers.
+- **OpenClaw Sentinel**: Sidecar security platform defending OpenClaw AI agents against CVEs, supply chain attacks, prompt injection, and credential theft.
+- **Agent Governance**: Full lifecycle governance with agent registry, policy engine, behavioral monitoring, access control, and tamper-evident audit logging.
 
 ---
 

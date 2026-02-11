@@ -61,8 +61,17 @@ You can also run specific security tasks directly from the CLI:
 - **CVE Lookup**: `bun start cve CVE-2024-1234`
 - **IOC Reputation**: `bun start ioc 8.8.8.8`
 
+### OpenClaw Security (Optional)
+If you run [OpenClaw](https://github.com/openclaw/openclaw) AI agents, initialize the security sidecar:
+
+```bash
+> openclaw-init
+```
+
+This registers all 12 security policies, creates a governed agent entry, and runs the initial hardening audit. Use `openclaw-status` to check module health at any time.
+
 ---
 
 ## What's Next?
 
-Learn more about Gideon's [Core Architecture](/docs/architecture/core-concepts) or explore the [Modular Skill System](/docs/skills/overview).
+Learn more about Gideon's [Core Architecture](/docs/architecture/core-concepts), explore the [Modular Skill System](/docs/skills), or set up the [OpenClaw Sentinel](/docs/features/openclaw-sentinel) for AI agent security.

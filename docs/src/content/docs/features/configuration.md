@@ -74,3 +74,44 @@ guardrails:
     - offensive security
     - malware development
 ```
+
+## OpenClaw Sentinel
+
+Configure the sidecar security platform for OpenClaw AI agents. All settings live under the `openclaw:` key.
+
+```yaml
+openclaw:
+  enabled: true
+  gateway:
+    gateway_url: "ws://127.0.0.1:18789"  # OpenClaw WebSocket endpoint
+    bind_mode: localhost                   # Expected bind mode
+    openclaw_home: "~/.openclaw"           # OpenClaw data directory
+  sentinel:
+    enabled: true
+    behavioral_profiling: true             # Build per-session behavior baselines
+    detect_cve_2026_25253: true            # CVE-2026-25253 kill chain tracking
+    anomaly_sensitivity: 0.7               # Behavioral anomaly threshold
+    kill_chain_threshold: 2                # Stages before critical alert
+  skill_scanner:
+    enabled: true
+    block_critical: true                   # Auto-block critical-risk skills
+    check_typosquatting: true              # Detect name impersonation
+    check_obfuscation: true                # Detect encoded payloads
+    publisher_min_age_days: 30             # Minimum account age
+  injection_defense:
+    enabled: true
+    confidence_threshold: 0.7              # Detection confidence cutoff
+    use_nemo_guardrails: true              # Use NeMo jailbreak model
+    sanitize_content: true                 # Auto-strip injection payloads
+  hardening_auditor:
+    enabled: true
+    detect_drift: true                     # Alert on config changes between audits
+    min_token_length: 32                   # Minimum auth token strength
+  credential_guard:
+    enabled: true
+    redact_outbound: true                  # Auto-redact secrets in outbound data
+    exfiltration_detection: true           # Detect credential-read-then-network patterns
+    bulk_read_threshold: 5                 # Memory files read before alerting
+```
+
+For a full walkthrough of each workstream, see the [OpenClaw Sentinel feature page](/docs/features/openclaw-sentinel).

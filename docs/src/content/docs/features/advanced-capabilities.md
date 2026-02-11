@@ -41,6 +41,8 @@ rapids:
 
 Gideon provides a powerful command-line interface for daily security operations.
 
+### Core Commands
+
 | Command | Description |
 | :--- | :--- |
 | `gideon brief` | Generate a daily security briefing summary. |
@@ -48,3 +50,16 @@ Gideon provides a powerful command-line interface for daily security operations.
 | `gideon ioc <value>` | Perform reputation and threat analysis on an IP, domain, or hash. |
 | `gideon policy` | Generate a hardening checklist based on a target technology. |
 | `gideon chat` | Enter an interactive session with the Gideon assistant. |
+
+### OpenClaw Sentinel Commands
+
+| Command | Alias | Description |
+| :--- | :--- | :--- |
+| `openclaw-init` | `oc-init` | Initialize the security sidecar and run first audit. |
+| `openclaw-status` | `oc-status` | Show health status of all security modules. |
+| `openclaw-audit` | `oc-audit` | Run a hardening audit with A-F grade. |
+| `openclaw-scan-skill <name>` | `oc-scan-skill` | Scan a ClawHub skill for threats. |
+| `openclaw-scan-injection <content>` | `oc-scan-injection` | Check content for prompt injection attempts. |
+| `openclaw-scan-memory` | `oc-scan-memory` | Scan memory files for poisoning indicators. |
+| `openclaw-audit-creds` | `oc-audit-creds` | Audit credential storage security. |
+| `openclaw-report` | `oc-report` | Generate a comprehensive security report. |

@@ -37,15 +37,18 @@ export default defineConfig({
 				{
 					label: 'Features',
 					items: [
+						{ label: 'Overview', link: 'features' },
 						{ label: 'Configuration Reference', link: 'features/configuration' },
 						{ label: 'Security Connectors', link: 'features/security-connectors' },
 						{ label: 'NVIDIA AI Integrations', link: 'features/nvidia-ai' },
 						{ label: 'Advanced Capabilities', link: 'features/advanced-capabilities' },
+						{ label: 'OpenClaw Sentinel', link: 'features/openclaw-sentinel' },
 					],
 				},
 				{
 					label: 'Skills',
 					items: [
+						{ label: 'Skills Overview', link: 'skills' },
 						{ label: 'Custom Skills', link: 'skills/custom-skills' },
 					],
 				},

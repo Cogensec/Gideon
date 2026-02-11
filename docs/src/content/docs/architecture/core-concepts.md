@@ -38,6 +38,23 @@ Optional GPU-accelerated integrations for high-performance operations:
 - **PersonaPlex**: Voice AI.
 - **NeMo Guardrails**: Topic control and safety.
 
+### Governance Layer
+Full lifecycle governance for all managed agents:
+- **Agent Registry**: Registration, lifecycle management, deprecated type migration (`moltbot`/`clawdbot` to `openclaw`).
+- **Policy Engine**: Rule-based evaluation with 7 default rules + 12 OpenClaw-specific rules. Actions: deny, audit, require_approval, rate_limit.
+- **Agent Monitor**: Behavioral profiling, anomaly detection, risk assessment per session.
+- **Access Control**: Permission management with resource pattern matching and wildcards.
+- **Audit Logger**: Tamper-evident SHA-256 hash-chain logging with compliance report generation.
+
+### OpenClaw Sidecar Layer
+Independent security platform running alongside OpenClaw AI agents:
+- **Gateway Sentinel**: Real-time WebSocket analysis with CVE kill chain tracking.
+- **Skill Scanner**: Supply chain defense against ClawHub malicious skills.
+- **Prompt Injection Defense**: 7-layer detection + NeMo Guardrails integration.
+- **Hardening Auditor**: Configuration assessment with A-F grading and drift detection.
+- **Credential Guard**: Exfiltration detection and automatic outbound redaction.
+- **Memory Integrity Monitor**: Poisoning detection and baseline hash verification.
+
 ---
 
 ## 3. Data Flow & Transparency

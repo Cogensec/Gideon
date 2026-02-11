@@ -5,11 +5,20 @@ description: Exploring the future of Gideon and its transition into an autonomou
 
 Gideon is evolving from a security research assistant into a fully autonomous cybersecurity operations platform.
 
-## Current Status (v1.0)
+## Current Status (v1.1)
 - ✅ Autonomous Task Planning & Self-Reflection
 - ✅ Modular Skill System (NVD, VT, AbuseIPDB)
 - ✅ NVIDIA Morpheus & NIM Integrations
 - ✅ Defensive-Only Guardrails (NeMo)
+- ✅ Agent Governance (Registry, Policy Engine, Monitor, Access Control, Audit Logger)
+- ✅ OpenClaw Sentinel Sidecar Security Platform
+  - Gateway Sentinel — Real-time WebSocket traffic analysis with CVE kill chain tracking
+  - ClawHub Skill Scanner — Supply chain defense against 800+ malicious skills
+  - Prompt Injection Defense — 7-layer detection + NeMo Guardrails integration
+  - Hardening Auditor — A-F configuration grading with drift detection
+  - Credential Guard — Exfiltration pattern detection and automatic outbound redaction
+  - Memory Integrity Monitor — Poisoning detection and baseline hash verification
+  - 12 pre-built OpenClaw-specific policy rules
 
 ## Future Vision
 

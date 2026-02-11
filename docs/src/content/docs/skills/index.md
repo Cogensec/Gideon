@@ -23,6 +23,7 @@ A skill is a self-contained module that provides:
 | **Data Analytics** | RAPIDS-powered batch processing of IOCs. | NVIDIA GPU |
 | **Voice AI** | Hands-free operation using PersonaPlex. | NVIDIA GPU |
 | **Governance** | Audit logging and access control logic. | None |
+| **OpenClaw Sentinel** | Sidecar security for OpenClaw AI agents. 8 commands covering gateway monitoring, skill scanning, prompt injection defense, hardening audits, credential protection, and memory integrity. | OpenClaw instance |
 
 ## Skill Structure
 
@@ -61,3 +62,4 @@ Export your skill from `src/skills/index.ts`.
 - [Security Research](/docs/skills/security-research)
 - [Threat Detection (Morpheus)](/docs/skills/threat-detection)
 - [Voice AI (PersonaPlex)](/docs/skills/voice-ai)
+- [OpenClaw Sentinel](/docs/features/openclaw-sentinel)
