@@ -405,3 +405,75 @@ openclaw:
     redact_outbound: true
     # Audit plaintext credential storage
     audit_storage: true
+
+# ============================================================================
+# Attack Surface Graph (Neo4j)
+# ============================================================================
+graph:
+  # Enable graph-based attack surface intelligence
+  enabled: true
+
+  # Neo4j connection settings
+  neo4j:
+    uri: ${NEO4J_URI:-bolt://localhost:7687}
+    user: ${NEO4J_USER:-neo4j}
+    password: ${NEO4J_PASSWORD:-gideon}
+    database: neo4j
+
+  # EvoGraph - Evolutionary attack chain tracking
+  evograph:
+    enabled: true
+    # Retention period for attack history (days)
+    retention_days: 90
+
+# ============================================================================
+# MCP Tool Integration
+# ============================================================================
+mcp:
+  # Enable MCP client for security tools
+  enabled: true
+
+  # Default MCP servers to connect on startup
+  servers:
+    - name: security-tools
+      url: ${MCP_SECURITY_URL:-http://localhost:8000}
+      auto_connect: false
+
+# ============================================================================
+# Phase-Aware Execution
+# ============================================================================
+phases:
+  # Auto-approve settings per phase
+  auto_approve:
+    informational: true    # Recon/passive - auto-approved
+    exploitation: false    # Active testing - requires approval
+    post_exploitation: false  # Lateral movement - requires approval
+
+  # Require scope definition before active testing
+  require_scope: true
+
+  # Approval timeout (milliseconds)
+  approval_timeout: 300000  # 5 minutes
+
+# ============================================================================
+# Remediation Pipeline
+# ============================================================================
+remediation:
+  # Enable automated remediation
+  enabled: true
+
+  # GitHub integration for PR generation
+  github:
+    # Automatically create PRs for fixes
+    auto_pr: false
+    # Require review before merging
+    require_review: true
+    # PR title prefix
+    pr_prefix: "[Gideon Fix]"
+
+  # Triage settings
+  triage:
+    # Auto-deduplicate findings
+    dedup: true
+    # Minimum severity to include (info, low, medium, high, critical)
+    min_severity: low

@@ -13,6 +13,8 @@ import { codeScanningSkill } from './code-scanning/index.js';
 import { voiceSkill } from './voice/index.js';
 import { governanceSkill } from './governance/index.js';
 import { openclawSentinelSkill } from './openclaw-sentinel/index.js';
+import { attackSurfaceSkill } from './attack-surface/index.js';
+import { mcpToolsSkill } from './mcp-tools/index.js';
 
 import { skillRegistry } from './registry.js';
 import { Skill } from './types.js';
@@ -29,6 +31,8 @@ export const builtInSkills: Skill[] = [
   voiceSkill,
   governanceSkill,
   openclawSentinelSkill,
+  attackSurfaceSkill,
+  mcpToolsSkill,
 ];
 
 // Re-export individual skills
@@ -40,6 +44,8 @@ export {
   voiceSkill,
   governanceSkill,
   openclawSentinelSkill,
+  attackSurfaceSkill,
+  mcpToolsSkill,
 };
 
 // ============================================================================
