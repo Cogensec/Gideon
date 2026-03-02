@@ -1,0 +1,93 @@
+version: '3.8'
+
+# Gideon Infrastructure Services
+# Start with: docker-compose up -d
+
+services:
+  # ============================================================================
+  # Neo4j Graph Database
+  # Attack surface graph and EvoGraph storage
+  # ============================================================================
+  neo4j:
+    image: neo4j:5-community
+    container_name: gideon-neo4j
+    ports:
+      - "7474:7474"  # Browser UI
+      - "7687:7687"  # Bolt protocol
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-gideon}
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+      - NEO4J_dbms_memory_heap_initial__size=512m
+      - NEO4J_dbms_memory_heap_max__size=1G
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7474"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================================================
+  # MCP Security Tools Server
+  # Provides security tools via Model Context Protocol
+  # ============================================================================
+  mcp-security:
+    image: gideon/mcp-security:latest
+    build:
+      context: ./mcp-servers
+      dockerfile: Dockerfile
+    container_name: gideon-mcp-security
+    ports:
+      - "8000:8000"  # MCP SSE endpoint
+    environment:
+      - MCP_LOG_LEVEL=info
+    volumes:
+      - ./nuclei-templates:/root/nuclei-templates:ro
+      - mcp_data:/data
+    cap_add:
+      - NET_RAW  # Required for Nmap raw sockets
+      - NET_ADMIN
+    # Note: For full network scanning, consider using network_mode: host
+    # network_mode: host
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+      neo4j:
+        condition: service_healthy
+
+  # ============================================================================
+  # Optional: OpenVAS/GVM Vulnerability Scanner
+  # Full network vulnerability scanning (requires more resources)
+  # ============================================================================
+  # gvm:
+  #   image: greenbone/community-edition:stable
+  #   container_name: gideon-gvm
+  #   ports:
+  #     - "9392:9392"  # GVM Web UI
+  #   volumes:
+  #     - gvm_data:/var/lib/openvas
+  #   environment:
+  #     - PASSWORD=${GVM_PASSWORD:-admin}
+  #   restart: unless-stopped
+  #   # Note: Initial sync takes ~30 minutes
+
+volumes:
+  neo4j_data:
+    driver: local
+  neo4j_logs:
+    driver: local
+  mcp_data:
+    driver: local
+  # gvm_data:
+  #   driver: local
+
+networks:
+  default:
+    name: gideon-network
