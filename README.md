@@ -1,4 +1,13 @@
-# GIDEON 🛡️
+# GIDEON
+
+██████╗ ██╗██████╗ ███████╗ ██████╗ ███╗   ██╗
+██╔════╝ ██║██╔══██╗██╔════╝██╔═══██╗████╗  ██║
+██║  ███╗██║██║  ██║█████╗  ██║   ██║██╔██╗ ██║
+██║   ██║██║██║  ██║██╔══╝  ██║   ██║██║╚██╗██║
+╚██████╔╝██║██████╔╝███████╗╚██████╔╝██║ ╚████║
+ ╚═════╝ ╚═╝╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
+
+Built by **Cogensec**.
 
 Gideon is an autonomous cybersecurity operations assistant that performs security research using task planning, self-reflection, and real-time threat intelligence data. Built for defensive security operations - detection, mitigation, and protection.
 
