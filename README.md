@@ -11,7 +11,7 @@
 
 ### Autonomous Cybersecurity Operations & Red Teaming Agent
 
-*Built by [**Requie**] (https://github.com/requie)* *Co-Founder at [**Cogensec**](https://cogensec.com) — Security infrastructure for intelligent machines*
+*Built by [**Requie**(https://github.com/requie)* *Co-Founder at [**Cogensec**](https://cogensec.com) — Security infrastructure for intelligent machines*
 
 <br/>
 
