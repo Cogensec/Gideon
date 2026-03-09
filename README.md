@@ -477,7 +477,7 @@ bun run lint         # TypeScript + ESLint checks
 
 [![Website](https://img.shields.io/badge/website-gideon.cogensec.com-blue?style=flat-square)](http://gideon.cogensec.com)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Cogensec-0077B5?style=flat-square&logo=linkedin)](https://linkedin.com/company/cogensec)
-[![X](https://img.shields.io/badge/X-@cogensec-black?style=flat-square&logo=x)](https://x.com/cogensec)
+[![X](https://img.shields.io/badge/X-@cogensec-black?style=flat-square&logo=x)](https://x.com/cogen_sec)
 
 *Gideon — Your autonomous cybersecurity operations assistant.*
 
