@@ -40,7 +40,9 @@
 </div>
 
 -----
-
+<div align="center">
+  <video src="#" width="70%" poster=""> </video>
+</div>
 ## What is Gideon?
 
 Gideon is not a script. It is not a scanner. It is an **autonomous security operations agent** that thinks, plans, and acts — transforming complex threat intelligence questions into step-by-step research missions, executing them against live data sources, checking its own reasoning, and delivering confident, evidence-backed answers.
