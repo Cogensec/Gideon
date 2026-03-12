@@ -112,6 +112,10 @@ const MODEL_PROVIDERS: Record<string, ModelFactory> = {
       apiKey,
       configuration: {
         baseURL: 'https://openrouter.ai/api/v1',
+        defaultHeaders: {
+          'HTTP-Referer': 'https://github.com/cogensec/gideon', // Optional, for including your app on openrouter.ai rankings.
+          'X-Title': 'Gideon', // Optional. Shows in rankings on openrouter.ai.
+        }
       },
     });
   },

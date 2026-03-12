@@ -133,6 +133,9 @@ export function ModelSelector({ providerId, models, currentModel, onSelect }: Mo
     if (providerId === 'nim' && currentModel?.startsWith('nim:')) {
       return currentModel.replace(/^nim:/, '');
     }
+    if (providerId === 'openrouter' && currentModel?.startsWith('openrouter:')) {
+      return currentModel.replace(/^openrouter:/, '');
+    }
     return currentModel;
   })();
 

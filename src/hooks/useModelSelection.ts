@@ -4,6 +4,7 @@ import { getProviderDisplayName, checkApiKeyExistsForProvider, saveApiKeyForProv
 import { getModelsForProvider, getDefaultModelForProvider } from '../components/ModelSelector.js';
 import { getOllamaModels } from '../utils/ollama.js';
 import { getNimModels } from '../utils/nim.js';
+import { getOpenRouterModels } from '../utils/openrouter.js';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from '../model/llm.js';
 import { InMemoryChatHistory } from '../utils/in-memory-chat-history.js';
 
@@ -120,6 +121,9 @@ export function useModelSelection(
       } else if (providerId === 'nim') {
         const nimModels = await getNimModels();
         setPendingModels(nimModels);
+      } else if (providerId === 'openrouter') {
+        const openrouterModels = await getOpenRouterModels();
+        setPendingModels(openrouterModels);
       } else {
         setPendingModels(getModelsForProvider(providerId));
       }
@@ -154,12 +158,15 @@ export function useModelSelection(
       return;
     }
 
+    const finalModelId = pendingProvider === 'openrouter' ? `openrouter:${modelId}` : modelId;
+
     // For cloud providers, check API key
     if (checkApiKeyExistsForProvider(pendingProvider)) {
-      completeModelSwitch(pendingProvider, modelId);
+      completeModelSwitch(pendingProvider, finalModelId);
     } else {
       // Need to get API key - store the selected model temporarily
-      setPendingModels([modelId]);
+      // We store finalModelId so that if we restore it, it has the openrouter prefix
+      setPendingModels([finalModelId]);
       setAppState('api_key_confirm');
     }
   }, [pendingProvider, completeModelSwitch]);
