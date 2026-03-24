@@ -65,7 +65,7 @@ export class PolicyEngine {
       }
     }
     return {
-      version: '1.0.0',
+      version: '1.1.1',
       policySets: [],
       defaultPolicySetId: null,
       lastUpdated: new Date().toISOString(),
@@ -250,7 +250,7 @@ export class PolicyEngine {
       id: uuidv4(),
       name: 'Default Security Policy',
       description: 'Built-in security policies for agent governance',
-      version: '1.0.0',
+      version: '1.1.1',
       rules,
       defaultAction: 'allow',
       createdAt: now,
@@ -380,7 +380,7 @@ export class PolicyEngine {
       id: uuidv4(),
       name: params.name,
       description: params.description,
-      version: '1.0.0',
+      version: '1.1.1',
       rules: params.rules || [],
       defaultAction: params.defaultAction || 'allow',
       createdAt: now,

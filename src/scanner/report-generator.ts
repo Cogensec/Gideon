@@ -281,7 +281,7 @@ ${v.fix.breakingChange ? '⚠️ **Warning:** This fix may introduce breaking ch
         generatedAt: new Date().toISOString(),
         scanId: this.result.id,
         targetPath: this.result.config.targetPath,
-        gideonVersion: '1.0.0',
+        gideonVersion: '1.1.1',
       },
       executiveSummary: {
         overallRisk: this.result.summary.riskLevel,
@@ -359,7 +359,7 @@ ${v.fix.breakingChange ? '⚠️ **Warning:** This fix may introduce breaking ch
           tool: {
             driver: {
               name: 'Gideon Security Scanner',
-              version: '1.0.0',
+              version: '1.1.1',
               informationUri: 'https://github.com/gideon-security/gideon',
               rules: this.getSARIFRules(),
             },

@@ -67,7 +67,7 @@ export class AccessControl {
       }
     }
     return {
-      version: '1.0.0',
+      version: '1.1.1',
       permissions: [],
       lastUpdated: new Date().toISOString(),
     };

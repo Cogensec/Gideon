@@ -394,7 +394,7 @@ export const mcpToolsSkill: Skill = {
     id: 'mcp-tools',
     name: 'MCP Tools',
     description: 'Connect to and execute security tools via Model Context Protocol',
-    version: '1.0.0',
+    version: '1.1.1',
     author: 'Gideon',
     category: 'integration',
     capabilities: {

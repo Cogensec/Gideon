@@ -324,7 +324,7 @@ export function createOpenClawPolicySet(): PolicySet {
     description: 'Comprehensive security policies for OpenClaw agent deployments. ' +
       'Covers all known CVEs (CVE-2026-25253, CVE-2026-24763, CVE-2026-25157, CVE-2026-22708), ' +
       'ClawHavoc campaign patterns, and architectural vulnerabilities.',
-    version: '1.0.0',
+    version: '1.1.1',
     rules,
     defaultAction: 'audit',
     createdAt: now,

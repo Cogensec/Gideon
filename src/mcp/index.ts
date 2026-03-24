@@ -41,7 +41,7 @@ export class MCPClientManager {
       const transport = new SSEClientTransport(new URL(url));
       const client = new Client({
         name: 'gideon',
-        version: '1.0.0',
+        version: '1.1.1',
       }, {
         capabilities: {},
       });
@@ -97,7 +97,7 @@ export class MCPClientManager {
 
       const client = new Client({
         name: 'gideon',
-        version: '1.0.0',
+        version: '1.1.1',
       }, {
         capabilities: {},
       });
