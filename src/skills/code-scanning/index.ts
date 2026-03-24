@@ -14,10 +14,9 @@ import {
 } from '../types.js';
 
 import {
-  scanDirectory,
-  scanFile,
+  scanPath,
   ScanResult,
-  ScanOptions,
+  ScanConfig,
 } from '../../scanner/index.js';
 
 // ============================================================================
@@ -29,13 +28,13 @@ async function handleScan(args: string[], ctx: SkillCommandContext): Promise<Ski
   const outputFormat = args.find(a => a.startsWith('--format='))?.split('=')[1] || 'markdown';
 
   try {
-    const options: ScanOptions = {
+    const options: ScanConfig = {
+      targetPath,
       recursive: !args.includes('--no-recursive'),
-      includeTests: args.includes('--include-tests'),
-      severity: args.find(a => a.startsWith('--severity='))?.split('=')[1] as any || 'low',
+      minSeverity: args.find(a => a.startsWith('--severity='))?.split('=')[1] as any || 'low',
     };
 
-    const result = await scanDirectory(targetPath, options);
+    const result = await scanPath(targetPath, options);
     return formatScanResult(result, outputFormat);
   } catch (error) {
     return {
@@ -58,7 +57,7 @@ async function handleScanFile(args: string[], ctx: SkillCommandContext): Promise
   }
 
   try {
-    const result = await scanFile(filePath);
+    const result = await scanPath(filePath, { targetPath: filePath, recursive: false });
     return formatScanResult(result, 'markdown');
   } catch (error) {
     return {
@@ -178,9 +177,9 @@ function formatScanResult(result: ScanResult, format: string): SkillCommandResul
 
   const lines = [
     '# Security Scan Results\n',
-    `**Files Scanned:** ${result.filesScanned}`,
-    `**Total Findings:** ${result.findings.length}`,
-    `**Scan Duration:** ${result.duration}ms`,
+    `**Files Scanned:** ${result.stats.filesScanned}`,
+    `**Total Findings:** ${result.stats.vulnerabilitiesFound}`,
+    `**Scan Duration:** ${result.stats.duration}ms`,
     '',
   ];
 
@@ -192,7 +191,7 @@ function formatScanResult(result: ScanResult, format: string): SkillCommandResul
     low: 0,
   };
 
-  for (const finding of result.findings) {
+  for (const finding of result.vulnerabilities) {
     bySeverity[finding.severity as keyof typeof bySeverity]++;
   }
 
@@ -203,19 +202,19 @@ function formatScanResult(result: ScanResult, format: string): SkillCommandResul
   lines.push(`- Low: ${bySeverity.low}`);
   lines.push('');
 
-  if (result.findings.length > 0) {
+  if (result.vulnerabilities.length > 0) {
     lines.push('## Findings\n');
 
-    for (const finding of result.findings) {
-      lines.push(`### ${finding.title}`);
+    for (const finding of result.vulnerabilities) {
+      lines.push(`### ${finding.name}`);
       lines.push(`- **Severity:** ${finding.severity}`);
-      lines.push(`- **File:** ${finding.file}:${finding.line}`);
+      lines.push(`- **File:** ${finding.location.file}:${finding.location.startLine}`);
       lines.push(`- **Category:** ${finding.category}`);
       if (finding.description) {
         lines.push(`- **Description:** ${finding.description}`);
       }
-      if (finding.remediation) {
-        lines.push(`- **Remediation:** ${finding.remediation}`);
+      if (finding.recommendation) {
+        lines.push(`- **Remediation:** ${finding.recommendation}`);
       }
       lines.push('');
     }

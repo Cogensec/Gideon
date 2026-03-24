@@ -6,6 +6,7 @@ export { voiceCommand, speakText } from './voice.js';
 export { analyzeCommand } from './analyze.js';
 export { rapidsCommand } from './rapids.js';
 export { handleScanCommand } from './scan.js';
+export { handleRedTeamCommand } from './redteam.js';
 export { handleGovernanceCommand } from './governance.js';
 export { handleGideonCommand } from './gideon.js';
 export { handleSkillsCommand, skillsCommand } from './skills.js';

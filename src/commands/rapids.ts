@@ -219,7 +219,7 @@ Or set RAPIDS_URL in .env to point to your RAPIDS server.`,
   }
 
   // Validate input file for operations that need it
-  if (!options.input && options.operation !== 'status') {
+  if (!options.input) {
     return {
       success: false,
       output: '',
@@ -249,7 +249,7 @@ Or set RAPIDS_URL in .env to point to your RAPIDS server.`,
           .filter(i => i.length > 0);
 
         const result = await batchAnalyzeIOCs(indicators);
-        output = formatResultAsMarkdown(result as RapidsResult & Record<string, unknown>, 'Batch IOC Analysis');
+        output = formatResultAsMarkdown(result as unknown as RapidsResult & Record<string, unknown>, 'Batch IOC Analysis');
 
         if (result.topThreats.length > 0) {
           output += `### Top Threats\n\n`;
@@ -270,7 +270,7 @@ Or set RAPIDS_URL in .env to point to your RAPIDS server.`,
 
       case 'correlate': {
         const result = await correlateEvents(inputContent!);
-        output = formatResultAsMarkdown(result as RapidsResult & Record<string, unknown>, 'Event Correlation');
+        output = formatResultAsMarkdown(result as unknown as RapidsResult & Record<string, unknown>, 'Event Correlation');
 
         if (result.correlations.length > 0) {
           output += `### Attack Chains Detected\n\n`;
@@ -301,7 +301,7 @@ Or set RAPIDS_URL in .env to point to your RAPIDS server.`,
         const result = await clusterThreats(inputContent!, {
           algorithm: options.algorithm as 'dbscan' | 'hdbscan' | 'kmeans' | undefined,
         });
-        output = formatResultAsMarkdown(result as RapidsResult & Record<string, unknown>, 'Threat Clustering');
+        output = formatResultAsMarkdown(result as unknown as RapidsResult & Record<string, unknown>, 'Threat Clustering');
 
         if (result.clusters.length > 0) {
           output += `### Clusters Found\n\n`;
@@ -322,7 +322,7 @@ Or set RAPIDS_URL in .env to point to your RAPIDS server.`,
 
       case 'graph': {
         const result = await analyzeNetworkGraph(inputContent!);
-        output = formatResultAsMarkdown(result as RapidsResult & Record<string, unknown>, 'Network Graph Analysis');
+        output = formatResultAsMarkdown(result as unknown as RapidsResult & Record<string, unknown>, 'Network Graph Analysis');
 
         if (result.lateralMovementPaths.length > 0) {
           output += `### Lateral Movement Paths\n\n`;
@@ -360,7 +360,7 @@ Or set RAPIDS_URL in .env to point to your RAPIDS server.`,
         const result = await detectAnomalies(inputContent!, {
           method: options.algorithm as 'isolation_forest' | 'local_outlier_factor' | 'autoencoder' | undefined,
         });
-        output = formatResultAsMarkdown(result as RapidsResult & Record<string, unknown>, 'Anomaly Detection');
+        output = formatResultAsMarkdown(result as unknown as RapidsResult & Record<string, unknown>, 'Anomaly Detection');
 
         if (result.anomalies.length > 0) {
           output += `### Detected Anomalies\n\n`;

@@ -238,5 +238,5 @@ export const SkillMetadataSchema = z.object({
 
 export const SkillConfigSchema = z.object({
   enabled: z.boolean(),
-  settings: z.record(z.unknown()),
+  settings: z.record(z.string(), z.unknown()),
 });

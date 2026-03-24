@@ -15,11 +15,11 @@ import {
 
 import {
   getMorpheusConfig,
-  runDFPPipeline,
-  runDGADetection,
-  runPhishingDetection,
-  runRansomwareDetection,
-  MorpheusResult,
+  analyzeWithDFP,
+  detectDGA,
+  detectPhishing,
+  detectRansomware,
+  MorpheusAnalysisResult,
 } from '../../utils/morpheus.js';
 
 // ============================================================================
@@ -38,7 +38,7 @@ async function handleDFP(args: string[], ctx: SkillCommandContext): Promise<Skil
   }
 
   try {
-    const result = await runDFPPipeline(logsPath);
+    const result = await analyzeWithDFP(logsPath);
     return formatResult('Digital Fingerprinting', result);
   } catch (error) {
     return {
@@ -61,7 +61,7 @@ async function handleDGA(args: string[], ctx: SkillCommandContext): Promise<Skil
   }
 
   try {
-    const result = await runDGADetection(domainsPath);
+    const result = await detectDGA([domainsPath]);
     return formatResult('DGA Detection', result);
   } catch (error) {
     return {
@@ -84,7 +84,7 @@ async function handlePhishing(args: string[], ctx: SkillCommandContext): Promise
   }
 
   try {
-    const result = await runPhishingDetection(emailPath);
+    const result = await detectPhishing(emailPath);
     return formatResult('Phishing Detection', result);
   } catch (error) {
     return {
@@ -107,7 +107,7 @@ async function handleRansomware(args: string[], ctx: SkillCommandContext): Promi
   }
 
   try {
-    const result = await runRansomwareDetection(eventsPath);
+    const result = await detectRansomware(eventsPath);
     return formatResult('Ransomware Detection', result);
   } catch (error) {
     return {
@@ -133,20 +133,20 @@ async function handleDetectAll(args: string[], ctx: SkillCommandContext): Promis
 
   // Run all pipelines
   const pipelines = [
-    { name: 'DFP', fn: runDFPPipeline },
-    { name: 'DGA', fn: runDGADetection },
-    { name: 'Phishing', fn: runPhishingDetection },
-    { name: 'Ransomware', fn: runRansomwareDetection },
+    { name: 'DFP', fn: (p: string) => analyzeWithDFP(p) },
+    { name: 'DGA', fn: (p: string) => detectDGA([p]) },
+    { name: 'Phishing', fn: (p: string) => detectPhishing(p) },
+    { name: 'Ransomware', fn: (p: string) => detectRansomware(p) },
   ];
 
   for (const pipeline of pipelines) {
     try {
       const result = await pipeline.fn(dataPath);
       results.push(`## ${pipeline.name}\n`);
-      results.push(`- **Status:** ${result.success ? 'Complete' : 'Failed'}`);
-      results.push(`- **Threats Found:** ${result.threats?.length || 0}`);
-      if (result.threats?.length) {
-        results.push(`- **Highest Severity:** ${getHighestSeverity(result.threats)}`);
+      results.push(`- **Status:** ${result.status === 'success' ? 'Complete' : 'Failed'}`);
+      results.push(`- **Threats Found:** ${result.threatsDetected || 0}`);
+      if (result.anomalies?.length) {
+        results.push(`- **Highest Severity:** ${getHighestSeverity(result.anomalies)}`);
       }
       results.push('');
     } catch (error) {
@@ -189,26 +189,26 @@ GPU-accelerated threat detection powered by NVIDIA Morpheus.
   };
 }
 
-function formatResult(title: string, result: MorpheusResult): SkillCommandResult {
-  if (!result.success) {
+function formatResult(title: string, result: MorpheusAnalysisResult): SkillCommandResult {
+  if (result.status === 'error') {
     return {
       success: false,
       output: '',
-      error: result.error || 'Analysis failed',
+      error: result.summary || 'Analysis failed',
     };
   }
 
   const lines = [
     `# ${title} Results\n`,
     `**Status:** Complete`,
-    `**Processing Time:** ${result.processingTime || 'N/A'}`,
-    `**Threats Found:** ${result.threats?.length || 0}`,
+    `**Processing Time:** ${result.processingTimeMs || 'N/A'}ms`,
+    `**Threats Found:** ${result.threatsDetected || 0}`,
     '',
   ];
 
-  if (result.threats?.length) {
+  if (result.anomalies?.length) {
     lines.push('## Detected Threats\n');
-    for (const threat of result.threats) {
+    for (const threat of result.anomalies) {
       lines.push(`### ${threat.type || 'Unknown'}`);
       lines.push(`- **Severity:** ${threat.severity || 'Unknown'}`);
       lines.push(`- **Confidence:** ${(threat.confidence * 100).toFixed(1)}%`);
@@ -304,7 +304,7 @@ export const threatDetectionSkill: Skill = {
     if (!config.enabled) return false;
 
     try {
-      const response = await fetch(`${config.url}/health`, {
+      const response = await fetch(`${config.serverUrl}/health`, {
         method: 'GET',
         signal: AbortSignal.timeout(5000),
       });
@@ -327,7 +327,7 @@ export const threatDetectionSkill: Skill = {
     }
 
     try {
-      const response = await fetch(`${config.url}/health`, {
+      const response = await fetch(`${config.serverUrl}/health`, {
         method: 'GET',
         signal: AbortSignal.timeout(5000),
       });
@@ -336,14 +336,14 @@ export const threatDetectionSkill: Skill = {
         healthy: response.ok,
         message: response.ok ? 'Morpheus service available' : 'Morpheus service unhealthy',
         checkedAt: new Date(),
-        details: { url: config.url },
+        details: { url: config.serverUrl },
       };
     } catch (error) {
       return {
         healthy: false,
         message: `Morpheus service unavailable: ${error}`,
         checkedAt: new Date(),
-        details: { url: config.url },
+        details: { url: config.serverUrl },
       };
     }
   },

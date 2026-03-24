@@ -109,14 +109,11 @@ async function handleAgentsStatus(agentId: string): Promise<SkillCommandResult> 
 
 **ID:** ${agent.id}
 **Status:** ${agent.status}
-**Created:** ${agent.createdAt}
-**Last Active:** ${agent.lastActiveAt || 'Never'}
+**Created:** ${agent.registeredAt}
+**Last Active:** ${agent.lastSeenAt || 'Never'}
 
 ## Capabilities
-${agent.capabilities.map(c => `- ${c}`).join('\n')}
-
-## Permissions
-${agent.permissions.map(p => `- ${p}`).join('\n')}`,
+${agent.capabilities.map(c => `- ${c}`).join('\n')}`,
       data: { agent },
     };
   } catch (error) {
@@ -143,8 +140,9 @@ async function handleAgentsRegister(args: string[]): Promise<SkillCommandResult>
     const registry = getAgentRegistry();
     const agent = registry.registerAgent({
       name,
+      type: 'generic',
+      owner: 'system',
       capabilities: ['query', 'analyze'],
-      permissions: ['read'],
     });
 
     return {
@@ -188,14 +186,13 @@ async function handlePolicy(args: string[], ctx: SkillCommandContext): Promise<S
 async function handlePolicyList(): Promise<SkillCommandResult> {
   try {
     const engine = getPolicyEngine();
-    const policies = engine.listPolicies();
+    const policies = engine.listPolicySets();
 
     const lines = ['# Active Policies\n'];
     for (const policy of policies) {
       lines.push(`## ${policy.name}`);
-      lines.push(`- **Effect:** ${policy.effect}`);
-      lines.push(`- **Actions:** ${policy.actions.join(', ')}`);
-      lines.push(`- **Resources:** ${policy.resources.join(', ')}`);
+      lines.push(`- **ID:** ${policy.id}`);
+      lines.push(`- **Description:** ${policy.description || 'No description'}`);
       lines.push('');
     }
 
@@ -227,7 +224,13 @@ async function handlePolicyCheck(args: string[]): Promise<SkillCommandResult> {
 
   try {
     const engine = getPolicyEngine();
-    const result = engine.evaluate({ action, resource });
+    const result = engine.evaluate({
+      action,
+      resource,
+      agentId: 'system',
+      type: 'tool_call',
+      parameters: {},
+    } as any);
 
     return {
       success: true,
@@ -271,7 +274,7 @@ async function handleAudit(args: string[], ctx: SkillCommandContext): Promise<Sk
 async function handleAuditRecent(count: number): Promise<SkillCommandResult> {
   try {
     const logger = getAuditLogger();
-    const entries = logger.getRecent(count);
+    const entries = logger.query({ limit: count });
 
     if (entries.length === 0) {
       return {
@@ -283,10 +286,10 @@ async function handleAuditRecent(count: number): Promise<SkillCommandResult> {
     const lines = ['# Recent Audit Entries\n'];
     for (const entry of entries) {
       lines.push(`## ${entry.timestamp}`);
-      lines.push(`- **Action:** ${entry.action}`);
-      lines.push(`- **Agent:** ${entry.agentId}`);
-      lines.push(`- **Resource:** ${entry.resource}`);
-      lines.push(`- **Result:** ${entry.result}`);
+      lines.push(`- **Event:** ${entry.eventType}`);
+      lines.push(`- **Actor:** ${entry.actor.id}`);
+      lines.push(`- **Target:** ${entry.target?.id || 'N/A'}`);
+      lines.push(`- **Outcome:** ${entry.outcome}`);
       lines.push('');
     }
 
@@ -317,7 +320,8 @@ async function handleAuditSearch(args: string[]): Promise<SkillCommandResult> {
 
   try {
     const logger = getAuditLogger();
-    const entries = logger.search(query);
+    const all = logger.query({ limit: 1000 });
+    const entries = all.filter(e => JSON.stringify(e).toLowerCase().includes(query.toLowerCase()));
 
     return {
       success: true,
@@ -325,7 +329,7 @@ async function handleAuditSearch(args: string[]): Promise<SkillCommandResult> {
 
 Found ${entries.length} entries.
 
-${entries.map(e => `- ${e.timestamp}: ${e.action} on ${e.resource}`).join('\n')}`,
+${entries.map(e => `- ${e.timestamp}: ${e.eventType} by ${e.actor.id}`).join('\n')}`,
       data: { query, entries },
     };
   } catch (error) {

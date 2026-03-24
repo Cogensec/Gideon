@@ -250,7 +250,7 @@ export class GideonGovernance {
     };
   }
 
-  private calculateComplianceScore(stats: ReturnType<typeof getAgentMonitor>['getStats']): number {
+  private calculateComplianceScore(stats: ReturnType<ReturnType<typeof getAgentMonitor>['getStats']>): number {
     const total = stats.totalActivities;
     if (total === 0) return 100;
 

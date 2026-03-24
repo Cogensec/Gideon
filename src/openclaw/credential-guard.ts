@@ -452,7 +452,7 @@ export class CredentialGuard {
     for (const attempt of this.exfiltrationAttempts) {
       byType[attempt.type] = (byType[attempt.type] || 0) + 1;
       if (attempt.blocked) blocked++;
-      sessions.add(attempt.sessionId);
+      if (attempt.sessionId) sessions.add(attempt.sessionId);
     }
 
     return {

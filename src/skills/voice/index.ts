@@ -15,8 +15,8 @@ import {
 
 import {
   getPersonaPlexConfig,
-  speakText,
-  VOICE_OPTIONS,
+  textToSpeech,
+  PERSONAPLEX_VOICES,
   PersonaPlexConfig,
 } from '../../utils/personaplex.js';
 
@@ -48,7 +48,7 @@ async function handleSpeak(args: string[], ctx: SkillCommandContext): Promise<Sk
   }
 
   try {
-    await speakText(text, { voice: currentVoice });
+    await textToSpeech({ text, voiceId: currentVoice });
     return {
       success: true,
       output: `Speaking: "${text}"`,
@@ -73,7 +73,7 @@ async function handleVoiceSet(args: string[], ctx: SkillCommandContext): Promise
     };
   }
 
-  if (!VOICE_OPTIONS.includes(voice)) {
+  if (!Object.keys(PERSONAPLEX_VOICES).includes(voice)) {
     return {
       success: false,
       output: '',
@@ -127,7 +127,7 @@ async function handleVoiceStatus(args: string[], ctx: SkillCommandContext): Prom
 
 **Enabled:** ${voiceEnabled ? 'Yes' : 'No'}
 **Current Voice:** ${currentVoice}
-**Service URL:** ${config.url}
+**Service URL:** ${config.serverUrl}
 **CPU Offload:** ${config.cpuOffload ? 'Yes' : 'No'}
 
 ## Service Configuration
@@ -272,10 +272,9 @@ export const voiceSkill: Skill = {
 
   async isAvailable(): Promise<boolean> {
     const config = getPersonaPlexConfig();
-    if (!config.enabled) return false;
 
     try {
-      const response = await fetch(`${config.url}/health`, {
+      const response = await fetch(`${config.serverUrl}/health`, {
         method: 'GET',
         signal: AbortSignal.timeout(5000),
       });
@@ -288,16 +287,8 @@ export const voiceSkill: Skill = {
   async getStatus(): Promise<SkillStatus> {
     const config = getPersonaPlexConfig();
 
-    if (!config.enabled) {
-      return {
-        healthy: false,
-        message: 'PersonaPlex integration disabled',
-        checkedAt: new Date(),
-      };
-    }
-
     try {
-      const response = await fetch(`${config.url}/health`, {
+      const response = await fetch(`${config.serverUrl}/health`, {
         method: 'GET',
         signal: AbortSignal.timeout(5000),
       });
@@ -307,7 +298,7 @@ export const voiceSkill: Skill = {
         message: response.ok ? 'PersonaPlex service available' : 'PersonaPlex service unhealthy',
         checkedAt: new Date(),
         details: {
-          url: config.url,
+          url: config.serverUrl,
           currentVoice,
           voiceEnabled,
         },
@@ -318,7 +309,7 @@ export const voiceSkill: Skill = {
         message: `PersonaPlex service unavailable: ${error}`,
         checkedAt: new Date(),
         details: {
-          url: config.url,
+          url: config.serverUrl,
           currentVoice,
           voiceEnabled,
         },

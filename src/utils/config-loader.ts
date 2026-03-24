@@ -42,7 +42,7 @@ const GovernanceConfigSchema = z.object({
 }).optional();
 
 const GideonConfigSchema = z.object({
-  sources: z.record(SourceConfigSchema),
+  sources: z.record(z.string(), SourceConfigSchema),
   output: z.object({
     formats: z.array(z.enum(['markdown', 'json', 'stix'])),
     directory: z.string(),

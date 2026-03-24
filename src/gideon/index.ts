@@ -40,43 +40,39 @@ export {
 // Prompts and identity
 export {
   GIDEON_IDENTITY,
-  METHODOLOGY_PROMPT,
-  VULNERABILITY_PROMPTS,
-  SCOPE_VALIDATION_PROMPT,
+  SAFETY_GUARDRAILS,
+  VULNERABILITY_EXPERTISE,
+  METHODOLOGY,
   buildGideonSystemPrompt,
   buildHuntPrompt,
   buildReconPrompt,
-  buildChainPrompt,
-  buildReportPrompt,
+  buildStatusPrompt,
 } from './prompts.js';
 
 // Reconnaissance utilities
 export {
   TOOLS_DATABASE,
-  getToolsForCategory,
-  getAllTools,
+  getToolsByCategory,
+  getToolCategories,
+  formatToolsMarkdown,
   generatePassiveReconCommands,
   generateActiveReconCommands,
-  generateSubdomainEnumCommands,
-  generateTechStackAnalysis,
+  generateQuickCheckCommands,
   CVSSInput,
   CVSSResult,
   calculateCVSS,
-  generateReconSummary,
 } from './recon.js';
 
 // Report generation
 export {
-  FINDING_TEMPLATES,
   generateFindingTemplate,
   formatFindingMarkdown,
-  generateExecutiveSummary,
+  createFinding,
+  generateReconSummaryTemplate,
+  formatReconSummaryMarkdown,
+  formatAttackChainMarkdown,
   generateEngagementReport,
-  formatCurlPOC,
-  generateChainReport,
-  exportFindingsJSON,
-  formatHackerOneReport,
-  formatBugcrowdReport,
+  generateJSONReport,
 } from './reports.js';
 
 // Session management utilities

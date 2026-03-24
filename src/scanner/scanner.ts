@@ -150,7 +150,6 @@ export class CodeScanner {
 
   constructor(config: ScanConfig) {
     this.config = {
-      recursive: true,
       maxFileSize: 1024 * 1024, // 1MB default
       generateFixes: true,
       deepAnalysis: true,

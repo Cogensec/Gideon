@@ -16,11 +16,11 @@ import {
 
 import {
   getRapidsConfig,
-  runBatchIOCAnalysis,
-  runEventCorrelation,
-  runThreatClustering,
-  runNetworkGraphAnalysis,
-  runAnomalyDetection,
+  batchAnalyzeIOCs,
+  correlateEvents,
+  clusterThreats,
+  analyzeNetworkGraph,
+  detectAnomalies,
   RapidsResult,
 } from '../../utils/rapids.js';
 
@@ -40,7 +40,7 @@ async function handleBatchIOC(args: string[], ctx: SkillCommandContext): Promise
   }
 
   try {
-    const result = await runBatchIOCAnalysis(filePath);
+    const result = await batchAnalyzeIOCs([filePath]);
     return formatResult('Batch IOC Analysis', result);
   } catch (error) {
     return {
@@ -63,7 +63,7 @@ async function handleCorrelate(args: string[], ctx: SkillCommandContext): Promis
   }
 
   try {
-    const result = await runEventCorrelation(filePath);
+    const result = await correlateEvents(filePath);
     return formatResult('Event Correlation', result);
   } catch (error) {
     return {
@@ -86,7 +86,7 @@ async function handleCluster(args: string[], ctx: SkillCommandContext): Promise<
   }
 
   try {
-    const result = await runThreatClustering(filePath);
+    const result = await clusterThreats(filePath);
     return formatResult('Threat Clustering', result);
   } catch (error) {
     return {
@@ -109,7 +109,7 @@ async function handleGraph(args: string[], ctx: SkillCommandContext): Promise<Sk
   }
 
   try {
-    const result = await runNetworkGraphAnalysis(filePath);
+    const result = await analyzeNetworkGraph(filePath);
     return formatResult('Network Graph Analysis', result);
   } catch (error) {
     return {
@@ -132,7 +132,7 @@ async function handleAnomaly(args: string[], ctx: SkillCommandContext): Promise<
   }
 
   try {
-    const result = await runAnomalyDetection(filePath);
+    const result = await detectAnomalies(filePath);
     return formatResult('Anomaly Detection', result);
   } catch (error) {
     return {
@@ -176,20 +176,20 @@ GPU-accelerated security data processing powered by NVIDIA RAPIDS.
   };
 }
 
-function formatResult(title: string, result: RapidsResult): SkillCommandResult {
-  if (!result.success) {
+function formatResult(title: string, result: any): SkillCommandResult {
+  if (result.status === 'error') {
     return {
       success: false,
       output: '',
-      error: result.error || 'Analysis failed',
+      error: result.summary || 'Analysis failed',
     };
   }
 
   const lines = [
     `# ${title} Results\n`,
     `**Status:** Complete`,
-    `**Processing Time:** ${result.processingTime || 'N/A'}`,
-    `**Records Processed:** ${result.recordCount || 'N/A'}`,
+    `**Processing Time:** ${result.processingTimeMs || 'N/A'}ms`,
+    `**Records Processed:** ${result.recordsProcessed || result.totalIndicators || 'N/A'}`,
     '',
   ];
 
@@ -199,9 +199,10 @@ function formatResult(title: string, result: RapidsResult): SkillCommandResult {
     lines.push('');
   }
 
-  if (result.highlights?.length) {
+  const highlights = result.topThreats?.map((t: any) => t.indicator) || result.recommendations || [];
+  if (highlights.length) {
     lines.push('## Key Findings\n');
-    for (const highlight of result.highlights) {
+    for (const highlight of highlights) {
       lines.push(`- ${highlight}`);
     }
     lines.push('');
@@ -282,7 +283,7 @@ export const dataAnalyticsSkill: Skill = {
     if (!config.enabled) return false;
 
     try {
-      const response = await fetch(`${config.url}/health`, {
+      const response = await fetch(`${config.serverUrl}/health`, {
         method: 'GET',
         signal: AbortSignal.timeout(5000),
       });
@@ -304,7 +305,7 @@ export const dataAnalyticsSkill: Skill = {
     }
 
     try {
-      const response = await fetch(`${config.url}/health`, {
+      const response = await fetch(`${config.serverUrl}/health`, {
         method: 'GET',
         signal: AbortSignal.timeout(5000),
       });
@@ -313,14 +314,14 @@ export const dataAnalyticsSkill: Skill = {
         healthy: response.ok,
         message: response.ok ? 'RAPIDS service available' : 'RAPIDS service unhealthy',
         checkedAt: new Date(),
-        details: { url: config.url },
+        details: { url: config.serverUrl },
       };
     } catch (error) {
       return {
         healthy: false,
         message: `RAPIDS service unavailable: ${error}`,
         checkedAt: new Date(),
-        details: { url: config.url },
+        details: { url: config.serverUrl },
       };
     }
   },

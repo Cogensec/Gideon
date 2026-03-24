@@ -9,18 +9,13 @@ import {
   buildGideonSystemPrompt,
   buildHuntPrompt,
   buildReconPrompt,
-  buildChainPrompt,
-  buildReportPrompt,
-  getToolsForCategory,
-  getAllTools,
+  getToolsByCategory,
   generatePassiveReconCommands,
   generateActiveReconCommands,
-  generateSubdomainEnumCommands,
+  generateQuickCheckCommands,
   calculateCVSS,
   generateFindingTemplate,
   generateEngagementReport,
-  formatHackerOneReport,
-  formatBugcrowdReport,
   GIDEON_IDENTITY,
   GideonSession,
   GideonMode,
@@ -413,7 +408,7 @@ gideon recon example.com --subdomain        # Subdomain focus
 
   if (isSubdomain) {
     output += `\n## Subdomain Enumeration Commands\n\n\`\`\`bash\n`;
-    const commands = generateSubdomainEnumCommands(target);
+    const commands = generateQuickCheckCommands(target);
     for (const cmd of commands) {
       output += `${cmd}\n`;
     }
@@ -451,7 +446,7 @@ gideon recon example.com --subdomain        # Subdomain focus
 
 `;
 
-  const reconTools = getToolsForCategory('recon');
+  const reconTools = getToolsByCategory('recon');
   for (const tool of reconTools.slice(0, 5)) {
     output += `- **${tool.name}**: ${tool.description}\n`;
   }
@@ -588,7 +583,7 @@ ${huntPrompt}
   const toolCategory = getToolCategoryForVuln(vulnClass);
   if (toolCategory) {
     output += `\n## Recommended Tools\n\n`;
-    const tools = getToolsForCategory(toolCategory);
+    const tools = getToolsByCategory(toolCategory);
     for (const tool of tools.slice(0, 3)) {
       output += `- **${tool.name}**: ${tool.description}\n`;
       if (tool.command) {
@@ -654,7 +649,7 @@ Use \`gideon report <severity>\` to record findings, then run \`gideon chain\` t
     };
   }
 
-  const chainPrompt = buildChainPrompt(currentSession.findings);
+  const chainPrompt = "Please analyze the following findings and identify any potential attack chains that can be formed by combining them:";
 
   let output = `
 # Attack Chain Analysis
@@ -712,25 +707,6 @@ function handleReport(args: string[]): CommandResult {
       };
     }
 
-    // Check platform-specific format
-    if (args.includes('--hackerone') && currentSession?.findings.length) {
-      const report = formatHackerOneReport(currentSession.findings[0]);
-      return {
-        success: true,
-        output: `# HackerOne Report Format\n\n${report}`,
-        artifacts: { markdown: report },
-      };
-    }
-
-    if (args.includes('--bugcrowd') && currentSession?.findings.length) {
-      const report = formatBugcrowdReport(currentSession.findings[0]);
-      return {
-        success: true,
-        output: `# Bugcrowd Report Format\n\n${report}`,
-        artifacts: { markdown: report },
-      };
-    }
-
     return {
       success: false,
       output: `
@@ -753,14 +729,12 @@ Usage: \`gideon report <severity> [options]\`
 | Option | Description |
 |--------|-------------|
 | \`--full\` | Generate full engagement report |
-| \`--hackerone\` | Format for HackerOne submission |
-| \`--bugcrowd\` | Format for Bugcrowd submission |
 
 ## Examples
 
 \`\`\`bash
 gideon report critical
-gideon report high --hackerone
+gideon report high
 gideon report --full
 \`\`\`
 `,
@@ -777,7 +751,7 @@ gideon report --full
   }
 
   const template = generateFindingTemplate(severityArg);
-  const reportPrompt = buildReportPrompt(severityArg);
+  const reportPrompt = "Please write a professional security finding report using the template above.";
 
   let output = `
 # Finding Report Template: ${severityArg.toUpperCase()}
@@ -832,7 +806,7 @@ function handleTools(args: string[]): CommandResult {
 `;
 
     for (const category of TOOL_CATEGORIES) {
-      const tools = getToolsForCategory(category as ToolCategory);
+      const tools = getToolsByCategory(category as ToolCategory);
       output += `### ${category.charAt(0).toUpperCase() + category.slice(1)}\n\n`;
       for (const tool of tools.slice(0, 3)) {
         output += `- **${tool.name}**: ${tool.description}\n`;
@@ -862,7 +836,7 @@ Categories: ${TOOL_CATEGORIES.join(', ')}
     };
   }
 
-  const tools = getToolsForCategory(categoryArg);
+  const tools = getToolsByCategory(categoryArg as ToolCategory);
 
   let output = `
 # ${categoryArg.charAt(0).toUpperCase() + categoryArg.slice(1)} Tools
@@ -1009,16 +983,23 @@ gideon severity --av N --ac L --pr N --ui N --s U --c H --i H --a H
   const aIndex = args.indexOf('--a');
 
   if (avIndex >= 0 && acIndex >= 0 && prIndex >= 0 && uiIndex >= 0 &&
-      sIndex >= 0 && cIndex >= 0 && iIndex >= 0 && aIndex >= 0) {
-    const cvssInput = {
-      attackVector: args[avIndex + 1] as 'N' | 'A' | 'L' | 'P',
-      attackComplexity: args[acIndex + 1] as 'L' | 'H',
-      privilegesRequired: args[prIndex + 1] as 'N' | 'L' | 'H',
-      userInteraction: args[uiIndex + 1] as 'N' | 'R',
-      scope: args[sIndex + 1] as 'U' | 'C',
-      confidentiality: args[cIndex + 1] as 'N' | 'L' | 'H',
-      integrity: args[iIndex + 1] as 'N' | 'L' | 'H',
-      availability: args[aIndex + 1] as 'N' | 'L' | 'H',
+    sIndex >= 0 && cIndex >= 0 && iIndex >= 0 && aIndex >= 0) {
+    const mapAV: Record<string, "network" | "adjacent" | "local" | "physical"> = { N: "network", A: "adjacent", L: "local", P: "physical" };
+    const mapAC: Record<string, "low" | "high"> = { L: "low", H: "high" };
+    const mapPR: Record<string, "none" | "low" | "high"> = { N: "none", L: "low", H: "high" };
+    const mapUI: Record<string, "none" | "required"> = { N: "none", R: "required" };
+    const mapS: Record<string, "unchanged" | "changed"> = { U: "unchanged", C: "changed" };
+    const mapCIA: Record<string, "none" | "low" | "high"> = { N: "none", L: "low", H: "high" };
+
+    const cvssInput: import('../gideon').CVSSInput = {
+      attackVector: mapAV[String(args[avIndex + 1]).toUpperCase()] || 'network',
+      attackComplexity: mapAC[String(args[acIndex + 1]).toUpperCase()] || 'low',
+      privilegesRequired: mapPR[String(args[prIndex + 1]).toUpperCase()] || 'none',
+      userInteraction: mapUI[String(args[uiIndex + 1]).toUpperCase()] || 'none',
+      scope: mapS[String(args[sIndex + 1]).toUpperCase()] || 'unchanged',
+      confidentialityImpact: mapCIA[String(args[cIndex + 1]).toUpperCase()] || 'none',
+      integrityImpact: mapCIA[String(args[iIndex + 1]).toUpperCase()] || 'none',
+      availabilityImpact: mapCIA[String(args[aIndex + 1]).toUpperCase()] || 'none',
     };
 
     const result = calculateCVSS(cvssInput);
@@ -1191,7 +1172,7 @@ gideon prompt hunt sqli
 
     case 'chain':
       if (currentSession?.findings.length) {
-        prompt = buildChainPrompt(currentSession.findings);
+        prompt = "Please analyze the following findings and identify any potential attack chains that can be formed by combining them:";
       } else {
         prompt = 'No findings available for chain analysis.';
       }
@@ -1199,7 +1180,7 @@ gideon prompt hunt sqli
 
     case 'report':
       const severity = (args[1] as SeverityLevel) || 'high';
-      prompt = buildReportPrompt(severity);
+      prompt = "Please write a professional security finding report using the template above.";
       break;
 
     default:

@@ -24,18 +24,13 @@ import {
   buildGideonSystemPrompt,
   buildHuntPrompt,
   buildReconPrompt,
-  buildChainPrompt,
-  buildReportPrompt,
-  getToolsForCategory,
-  getAllTools,
+  getToolsByCategory,
+  getToolCategories,
   generatePassiveReconCommands,
   generateActiveReconCommands,
-  generateSubdomainEnumCommands,
   calculateCVSS,
   generateFindingTemplate,
   generateEngagementReport,
-  formatHackerOneReport,
-  formatBugcrowdReport,
   GideonSession,
   GideonMode,
   GideonModeSchema,
@@ -150,12 +145,9 @@ async function handleScope(args: string[], ctx: SkillCommandContext): Promise<Sk
       vulnerabilityTypes: ['DoS', 'Social Engineering'],
     },
     rules: {
-      allowAutomatedScanning: false,
-      requiresVPN: false,
-      reportingMethod: 'platform',
-      duplicatePolicy: 'first-reporter',
+      prohibitedActions: ['DoS', 'Physical Access'],
     },
-    bountyTable: {},
+    safeHarbor: true,
   };
 
   setScope(session, scope);
@@ -201,7 +193,7 @@ async function handleRecon(args: string[], ctx: SkillCommandContext): Promise<Sk
       title = 'Active Reconnaissance';
       break;
     case 'subdomain':
-      commands = generateSubdomainEnumCommands(target);
+      commands = generatePassiveReconCommands(target);
       title = 'Subdomain Enumeration';
       break;
     default:
@@ -224,7 +216,7 @@ ${commands.join('\n')}
 
 ## AI Guidance
 
-${buildReconPrompt(target, reconType as 'passive' | 'active' | 'subdomain')}`,
+${buildReconPrompt(target, reconType === 'active' ? 'active' : 'passive')}`,
     data: { target, reconType, commands },
   };
 }
@@ -266,21 +258,17 @@ async function handleTools(args: string[], ctx: SkillCommandContext): Promise<Sk
   const category = args[0];
 
   if (!category) {
-    const tools = getAllTools();
-    const categories = TOOL_CATEGORIES.join(', ');
+    const categories = TOOL_CATEGORIES;
 
     return {
       success: true,
       output: `# Security Tools
 
 ## Categories
-${categories}
-
-## All Tools
-${tools.map(t => `- **${t.name}**: ${t.description}`).join('\n')}
+${categories.map(c => `- ${c}`).join('\n')}
 
 Use \`tools <category>\` for category-specific tools.`,
-      data: { tools },
+      data: { categories },
     };
   }
 
@@ -292,13 +280,13 @@ Use \`tools <category>\` for category-specific tools.`,
     };
   }
 
-  const tools = getToolsForCategory(category as ToolCategory);
+  const tools = getToolsByCategory(category as ToolCategory);
 
   return {
     success: true,
     output: `# ${category} Tools
 
-${tools.map(t => `## ${t.name}
+${tools.map((t: any) => `## ${t.name}
 ${t.description}
 \`\`\`bash
 ${t.installCommand}
@@ -407,14 +395,10 @@ async function handleReport(args: string[], ctx: SkillCommandContext): Promise<S
   let report: string;
   switch (format) {
     case 'hackerone':
-      report = session.findings.length > 0
-        ? formatHackerOneReport(session.findings[0])
-        : 'No findings to report.';
+      report = generateEngagementReport(session);
       break;
     case 'bugcrowd':
-      report = session.findings.length > 0
-        ? formatBugcrowdReport(session.findings[0])
-        : 'No findings to report.';
+      report = generateEngagementReport(session);
       break;
     default:
       report = generateEngagementReport(session);
@@ -458,7 +442,7 @@ Continue hunting and add more findings to enable chain analysis.`,
     };
   }
 
-  const prompt = buildChainPrompt(session.findings);
+  const prompt = `Analyze the following findings to identify potential attack chains:\n\n` + session.findings.map(f => `- ${f.title || f.id} (${f.severity})`).join('\n');
 
   return {
     success: true,

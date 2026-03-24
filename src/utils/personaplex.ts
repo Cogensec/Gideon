@@ -219,7 +219,7 @@ export class PersonaPlexSession {
       }
       // Call existing handler if set
       if (existingHandler) {
-        existingHandler.call(this.ws, event);
+        existingHandler.call(this.ws!, event);
       }
     };
   }

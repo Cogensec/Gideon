@@ -7,7 +7,7 @@ export const SecurityQuerySchema = z.object({
     start: z.string().optional(),
     end: z.string().optional(),
   }).optional(),
-  filters: z.record(z.any()).optional(),
+  filters: z.record(z.string(), z.any()).optional(),
 });
 
 export type SecurityQuery = z.infer<typeof SecurityQuerySchema>;

@@ -90,7 +90,7 @@ export class AgentRegistry {
     const wasDeprecated = originalType.toLowerCase() in DEPRECATED_AGENT_TYPES;
 
     const now = new Date().toISOString();
-    const metadata = { ...params.metadata } || {};
+    const metadata = params.metadata ? { ...params.metadata } : {};
 
     // Track deprecated type migration
     if (wasDeprecated) {

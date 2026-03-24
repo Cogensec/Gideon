@@ -63,7 +63,7 @@ export const AgentRegistrationSchema = z.object({
   status: AgentStatusSchema,
   registeredAt: z.string().datetime(),
   lastSeenAt: z.string().datetime().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 export type AgentRegistration = z.infer<typeof AgentRegistrationSchema>;
@@ -186,7 +186,7 @@ export const AgentActivitySchema = z.object({
   action: z.string(),
   resource: z.string().optional(),
   resourceType: ResourceTypeSchema.optional(),
-  parameters: z.record(z.any()).optional(),
+  parameters: z.record(z.string(), z.any()).optional(),
 
   // Results
   success: z.boolean(),
@@ -354,7 +354,7 @@ export const AuditLogSchema = z.object({
     id: z.string(),
     name: z.string().optional(),
   }).optional(),
-  details: z.record(z.any()),
+  details: z.record(z.string(), z.any()),
   outcome: z.enum(['success', 'failure', 'partial']),
   riskLevel: PolicySeveritySchema.optional(),
 });
