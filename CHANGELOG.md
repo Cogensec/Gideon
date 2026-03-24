@@ -10,11 +10,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.1] - 2026-03-23
 
 ### Fixed
-- Fixed approximately 80 TypeScript compilation errors across the codebase to ensure strict type safety.
-- Resolved Zod v4 API incompatibilities for `.default()` and `z.record()` object schemas.
-- Synchronized codebase skill layers (Code Scanning, Data Analytics, Governance, Security Research, Threat Detection, Voice) with the latest utility module APIs.
-- Fixed barrel file `src/gideon/index.ts` re-exports containing non-existent definitions.
-- Resolved various type casting, missing null-safety guards, and implicit `any` exceptions.
+- **Strict Type Safety Enforcement**: Resolved ~80 TypeScript compilation errors to achieve successful compilation via `tsc --noEmit`.
+- **Barrel File Re-exports (`src/gideon/index.ts`)**: 
+  - Updated re-exports from `prompts.ts`, `recon.ts`, and `reports.ts`.
+  - Replaced non-existent exports (e.g., `buildReportPrompt`, `formatHackerOneReport`) with actual implementations (like `buildStatusPrompt`, `generateEngagementReport`).
+- **Zod v4 API Compatibility**: 
+  - Updated `z.record(z.any())` schemas to `z.record(z.string(), z.any())` ensuring compliance with v4 schema definitions.
+  - Removed explicit empty object assignments `.default({})` for properties with required fields to fix parameter overload mismatch errors across `governance/types.ts`, `openclaw/types.ts`, `skills/types.ts`, `tools/security/types.ts`, and `utils/config-loader.ts`.
+- **Skills Layer Refactoring**: Fixed staleness by aligning references with current underlying internal APIs.
+  - *Code Scanning*: Migrated logic to `scanPath` from deprecated `scanDirectory`, updating internal result field mappings.
+  - *Data Analytics*: Updated deprecated `runBatchIOCAnalysis` calls to `batchAnalyzeIOCs`, alongside modern `RapidsResult` fields.
+  - *Governance*: Standardized proxy entity property access (e.g., `createdAt` -> `registeredAt`, `lastActiveAt` -> `lastSeenAt`) and properly invoked `AuditLogger.listPolicySets`.
+  - *Security Research*: Realigned missing toolkit functions (`getToolsByCategory`) and updated missing enumeration fallback hooks.
+  - *Threat Detection*: Updated commands to modern Morpheus GPU pipeline wrappers (`analyzeWithDFP`, `detectDGA`, `detectPhishing`, `detectRansomware`).
+  - *Voice*: Remapped `speakText` invocation footprint to match the `textToSpeech` generalized parameterized options dictionary format.
+- **Null-Safety & Casting Validations**:
+  - `gideon.ts`: Re-aligned parameter properties for accurately calculating `CVSSInput`.
+  - `rapids.ts`: Eliminated compilation type-casting violations across operations by using safe intermediaries (`as unknown as Type`).
+  - `agent-registry.ts`: Corrected potential truthy syntax leaks utilizing strict conditional object spreading.
+  - `credential-guard.ts` & `personaplex.ts`: Installed exact strict `null` and `undefined` bounding criteria for WebSocket connections and active session handling properties.
+  - `scanner.ts`: Deduped recursive object properties initialized within native code configurations.
 
 ## [1.1.0] - 2026-02-07
 
