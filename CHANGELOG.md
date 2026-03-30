@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - Today
+
 ## [1.1.1] - 2026-03-23
 
 ### Fixed
@@ -78,7 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Multi-Model Support** — OpenAI, Anthropic, Google, OpenRouter, Ollama
 - **Safety Mechanisms** — Defensive-only mode, sensitive data redaction
 
-[Unreleased]: https://github.com/cogensec/gideon/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/cogensec/gideon/compare/v1.2.0...HEAD
 [1.1.1]: https://github.com/cogensec/gideon/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/cogensec/gideon/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/cogensec/gideon/releases/tag/v1.0.0

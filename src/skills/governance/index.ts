@@ -413,7 +413,7 @@ export const governanceSkill: Skill = {
     id: 'governance',
     name: 'Governance',
     description: 'Agent security governance, access control, and audit logging',
-    version: '1.1.1',
+    version: '1.2.0',
     author: 'Gideon',
     category: 'governance',
     capabilities: {

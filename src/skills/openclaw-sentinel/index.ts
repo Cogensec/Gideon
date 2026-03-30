@@ -415,7 +415,7 @@ export const openclawSentinelSkill: Skill = {
     description: 'Security sidecar for OpenClaw agent deployments. Provides gateway traffic monitoring, ' +
       'skill scanning, prompt injection defense, hardening audits, credential protection, and memory integrity checks. ' +
       'Addresses CVE-2026-25253, CVE-2026-24763, CVE-2026-25157, CVE-2026-22708, and ClawHavoc campaign threats.',
-    version: '1.1.1',
+    version: '1.2.0',
     author: 'Gideon Security',
     category: 'governance',
     capabilities: {

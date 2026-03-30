@@ -615,7 +615,7 @@ export const securityResearchSkill: Skill = {
     id: 'security-research',
     name: 'Security Research',
     description: 'AI-assisted bug bounty hunting, penetration testing, and security research',
-    version: '1.1.1',
+    version: '1.2.0',
     author: 'Gideon',
     category: 'security-research',
     capabilities: {

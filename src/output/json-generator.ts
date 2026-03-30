@@ -28,7 +28,7 @@ export async function generateJSONReport(input: JSONReportInput): Promise<any> {
       content: input.content,
       toolCalls: input.toolCalls || [],
       metadata: input.metadata || {},
-      version: '1.1.1',
+      version: '1.2.0',
     };
 
     const filepath = join(reportDir, 'data.json');

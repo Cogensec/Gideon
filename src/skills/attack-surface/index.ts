@@ -467,7 +467,7 @@ export const attackSurfaceSkill: Skill = {
     id: 'attack-surface',
     name: 'Attack Surface',
     description: 'Build and query attack surface graphs using Neo4j',
-    version: '1.1.1',
+    version: '1.2.0',
     author: 'Gideon',
     category: 'security-research',
     capabilities: {

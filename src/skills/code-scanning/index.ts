@@ -263,7 +263,7 @@ export const codeScanningSkill: Skill = {
     id: 'code-scanning',
     name: 'Code Scanning',
     description: 'Static analysis and vulnerability detection for source code',
-    version: '1.1.1',
+    version: '1.2.0',
     author: 'Gideon',
     category: 'code-analysis',
     capabilities: {

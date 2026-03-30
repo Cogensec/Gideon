@@ -255,7 +255,7 @@ export const voiceSkill: Skill = {
     id: 'voice',
     name: 'Voice',
     description: 'Speech-to-speech AI using NVIDIA PersonaPlex',
-    version: '1.1.1',
+    version: '1.2.0',
     author: 'Gideon',
     category: 'voice',
     capabilities: {

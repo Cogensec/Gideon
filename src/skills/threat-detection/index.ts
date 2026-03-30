@@ -284,7 +284,7 @@ export const threatDetectionSkill: Skill = {
     id: 'threat-detection',
     name: 'Threat Detection',
     description: 'GPU-accelerated threat detection using NVIDIA Morpheus',
-    version: '1.1.1',
+    version: '1.2.0',
     author: 'Gideon',
     category: 'threat-detection',
     capabilities: {

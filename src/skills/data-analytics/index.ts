@@ -263,7 +263,7 @@ export const dataAnalyticsSkill: Skill = {
     id: 'data-analytics',
     name: 'Data Analytics',
     description: 'GPU-accelerated security data processing using NVIDIA RAPIDS',
-    version: '1.1.1',
+    version: '1.2.0',
     author: 'Gideon',
     category: 'data-analytics',
     capabilities: {
