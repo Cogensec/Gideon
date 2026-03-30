@@ -3,7 +3,7 @@ import { StructuredToolInterface } from '@langchain/core/tools';
 import { callLlm, getFastModel } from '../model/llm.js';
 import { Scratchpad } from './scratchpad.js';
 import { createSecuritySearch, tavilySearch } from '../tools/index.js';
-import { buildSystemPrompt, buildIterationPrompt, buildFinalAnswerPrompt, buildToolSummaryPrompt } from '../agent/prompts.js';
+import { buildActiveSystemPrompt, buildIterationPrompt, buildFinalAnswerPrompt, buildToolSummaryPrompt } from '../agent/prompts.js';
 import { extractTextContent, hasToolCalls } from '../utils/ai-message.js';
 import { streamLlmResponse } from '../utils/llm-stream.js';
 import { InMemoryChatHistory } from '../utils/in-memory-chat-history.js';
@@ -55,7 +55,7 @@ export class Agent {
       createSecuritySearch(model),
       ...(process.env.TAVILY_API_KEY ? [tavilySearch] : []),
     ];
-    const systemPrompt = buildSystemPrompt();
+    const systemPrompt = buildActiveSystemPrompt();
     return new Agent(config, tools, systemPrompt);
   }
 

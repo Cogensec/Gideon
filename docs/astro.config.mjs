@@ -40,6 +40,8 @@ export default defineConfig({
 						{ label: 'Configuration Reference', link: 'features/configuration' },
 						{ label: 'Security Connectors', link: 'features/security-connectors' },
 						{ label: 'NVIDIA AI Integrations', link: 'features/nvidia-ai' },
+						{ label: 'OpenClaw Sentinel', link: 'features/openclaw-sentinel' },
+						{ label: 'Red Team Mode', link: 'features/red-team' },
 						{ label: 'Advanced Capabilities', link: 'features/advanced-capabilities' },
 					],
 				},

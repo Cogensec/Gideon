@@ -76,6 +76,58 @@ safety:
   # Require explicit authorization for sensitive operations
   require_explicit_auth: false  # Set to true in production environments
 
+# ============================================================================
+# Red Team Mode Configuration
+# ============================================================================
+# When activated via authorized engagement, Gideon operates as an autonomous
+# red team agent. All offensive capabilities are gated behind:
+# - Explicit engagement authorization with scope, ROE, and time bounds
+# - Human-in-the-loop approval for exploitation and post-exploitation
+# - Full audit logging of every action
+# - Scope enforcement validating all targets before execution
+redteam:
+  # Master toggle - set to false to permanently disable red team capabilities
+  enabled: true
+
+  # Require engagement authorization before activation
+  require_authorization: true
+
+  # Must define scope before any operations
+  require_scope: true
+
+  # Maximum engagement duration (hours) - auto-deactivates after this
+  max_engagement_hours: 72
+
+  # Use Docker sandboxed execution for tools
+  sandbox_execution: true
+
+  # Log every action to audit trail
+  audit_all_actions: true
+
+  # Allowed offensive tools (tools not listed here are blocked)
+  allowed_tools:
+    - nmap
+    - nuclei
+    - sqlmap
+    - hydra
+    - metasploit
+    - gobuster
+    - ffuf
+    - nikto
+    - httpx
+    - subfinder
+    - amass
+    - katana
+    - sliver
+    - custom_script
+
+  # Docker sandbox image for tool execution
+  sandbox:
+    image: gideon-toolbox:latest
+    network_mode: host
+    timeout_seconds: 300
+    max_concurrent: 3
+
 # OpenRouter Configuration (Unified API for 400+ models)
 openrouter:
   # Enable OpenRouter integration

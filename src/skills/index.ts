@@ -16,8 +16,13 @@ import { openclawSentinelSkill } from './openclaw-sentinel/index.js';
 import { attackSurfaceSkill } from './attack-surface/index.js';
 import { mcpToolsSkill } from './mcp-tools/index.js';
 
+// Red Team skills (loaded only during authorized engagements)
+import { postExploitationSkill } from './post-exploitation/index.js';
+import { weaponizationSkill } from './weaponization/index.js';
+
 import { skillRegistry } from './registry.js';
 import { Skill } from './types.js';
+import { isRedTeamMode } from '../agent/redteam-mode.js';
 
 // ============================================================================
 // Built-in Skills
@@ -46,7 +51,15 @@ export {
   openclawSentinelSkill,
   attackSurfaceSkill,
   mcpToolsSkill,
+  postExploitationSkill,
+  weaponizationSkill,
 };
+
+// Red Team skills - registered dynamically when engagement is activated
+export const redTeamSkills: Skill[] = [
+  postExploitationSkill,
+  weaponizationSkill,
+];
 
 // ============================================================================
 // Initialization
@@ -69,6 +82,35 @@ export async function initializeSkills(): Promise<void> {
 
   const enabled = skillRegistry.getEnabledSkills();
   console.log(`\n${enabled.length}/${builtInSkills.length} skills enabled`);
+}
+
+/**
+ * Register Red Team skills (called when Red Team mode is activated)
+ */
+export async function registerRedTeamSkills(): Promise<void> {
+  console.log('\nRegistering Red Team skills...');
+
+  for (const skill of redTeamSkills) {
+    const existing = skillRegistry.getSkill(skill.metadata.id);
+    if (existing) continue; // Already registered
+
+    const result = await skillRegistry.register(skill);
+    if (result.success) {
+      console.log(`  ✓ ${skill.metadata.name} (${skill.metadata.version})`);
+    } else {
+      console.warn(`  ✗ ${skill.metadata.name}: ${result.error}`);
+    }
+  }
+}
+
+/**
+ * Unregister Red Team skills (called when Red Team mode is deactivated)
+ */
+export async function unregisterRedTeamSkills(): Promise<void> {
+  for (const skill of redTeamSkills) {
+    skillRegistry.unregister(skill.metadata.id);
+  }
+  console.log('Red Team skills unregistered.');
 }
 
 /**

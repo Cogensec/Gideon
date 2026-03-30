@@ -10,6 +10,8 @@
  * - Content Safety: Ensures outputs don't contain harmful content
  */
 
+import { isRedTeamMode } from '../agent/redteam-mode.js';
+
 export interface GuardrailsConfig {
   serviceUrl: string;
   enabled: boolean;
@@ -50,7 +52,7 @@ export interface ContentSafetyResult {
   severity?: 'low' | 'medium' | 'high';
 }
 
-// Default configuration
+// Default configuration (defensive mode)
 const DEFAULT_CONFIG: GuardrailsConfig = {
   serviceUrl: 'http://localhost:7331',
   enabled: true,
@@ -80,13 +82,48 @@ const DEFAULT_CONFIG: GuardrailsConfig = {
   ],
 };
 
+// Red Team mode configuration (permissive for authorized engagements)
+const REDTEAM_CONFIG: GuardrailsConfig = {
+  serviceUrl: 'http://localhost:7331',
+  enabled: true,
+  inputRails: {
+    jailbreakDetection: true,   // Keep active — protects against prompt injection from targets
+    topicControl: false,         // Disable topic blocking for offensive ops
+  },
+  outputRails: {
+    contentSafety: false,        // Allow offensive output generation
+  },
+  allowedTopics: [
+    'cybersecurity',
+    'vulnerability analysis',
+    'threat intelligence',
+    'security hardening',
+    'incident response',
+    'malware analysis',
+    'network security',
+    'compliance',
+    'penetration testing',
+    'exploitation',
+    'lateral movement',
+    'privilege escalation',
+    'payload generation',
+    'post-exploitation',
+    'red teaming',
+    'command and control',
+    'credential harvesting',
+    'edr evasion',
+  ],
+  blockedTopics: [],  // No blocked topics during authorized engagement
+};
+
 /**
  * Gets NeMo Guardrails configuration from environment
  */
 export function getGuardrailsConfig(): GuardrailsConfig {
+  const baseConfig = isRedTeamMode() ? REDTEAM_CONFIG : DEFAULT_CONFIG;
   return {
-    ...DEFAULT_CONFIG,
-    serviceUrl: process.env.NEMO_GUARDRAILS_URL || DEFAULT_CONFIG.serviceUrl,
+    ...baseConfig,
+    serviceUrl: process.env.NEMO_GUARDRAILS_URL || baseConfig.serviceUrl,
     enabled: process.env.NEMO_GUARDRAILS_ENABLED !== 'false',
   };
 }
@@ -356,6 +393,11 @@ export function localJailbreakCheck(input: string): boolean {
  * Local topic check when service is unavailable
  */
 export function localTopicCheck(input: string): boolean {
+  // Red Team mode: allow all offensive topics
+  if (isRedTeamMode()) {
+    return true;
+  }
+
   const offensivePatterns = [
     /how\s+to\s+(hack|exploit|attack|breach|compromise)/i,
     /write\s+(me\s+)?(a\s+)?(malware|virus|trojan|ransomware|exploit)/i,

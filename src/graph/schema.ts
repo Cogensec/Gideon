@@ -231,6 +231,110 @@ export const NODE_SCHEMAS: Record<NodeLabel, NodeSchema> = {
       updatedAt: { type: 'datetime', required: true },
     },
   },
+  // Post-exploitation node schemas
+  Host: {
+    label: 'Host',
+    properties: {
+      id: { type: 'string', required: true, unique: true },
+      hostname: { type: 'string', required: true, indexed: true },
+      ip: { type: 'string', indexed: true },
+      os: { type: 'string' },
+      isDomainController: { type: 'boolean' },
+      isCompromised: { type: 'boolean' },
+      createdAt: { type: 'datetime', required: true },
+      updatedAt: { type: 'datetime', required: true },
+    },
+  },
+  User: {
+    label: 'User',
+    properties: {
+      id: { type: 'string', required: true, unique: true },
+      username: { type: 'string', required: true, indexed: true },
+      domain: { type: 'string', indexed: true },
+      isAdmin: { type: 'boolean' },
+      isDomainAdmin: { type: 'boolean' },
+      lastLogon: { type: 'datetime' },
+      createdAt: { type: 'datetime', required: true },
+      updatedAt: { type: 'datetime', required: true },
+    },
+  },
+  Group: {
+    label: 'Group',
+    properties: {
+      id: { type: 'string', required: true, unique: true },
+      name: { type: 'string', required: true, indexed: true },
+      domain: { type: 'string', indexed: true },
+      createdAt: { type: 'datetime', required: true },
+      updatedAt: { type: 'datetime', required: true },
+    },
+  },
+  Credential: {
+    label: 'Credential',
+    properties: {
+      id: { type: 'string', required: true, unique: true },
+      type: { type: 'string', required: true, indexed: true },
+      username: { type: 'string', required: true, indexed: true },
+      domain: { type: 'string' },
+      source: { type: 'string' },
+      obtainedAt: { type: 'datetime', required: true },
+      createdAt: { type: 'datetime', required: true },
+      updatedAt: { type: 'datetime', required: true },
+    },
+  },
+  Share: {
+    label: 'Share',
+    properties: {
+      id: { type: 'string', required: true, unique: true },
+      name: { type: 'string', required: true, indexed: true },
+      path: { type: 'string' },
+      permissions: { type: 'string' },
+      createdAt: { type: 'datetime', required: true },
+      updatedAt: { type: 'datetime', required: true },
+    },
+  },
+  GPO: {
+    label: 'GPO',
+    properties: {
+      id: { type: 'string', required: true, unique: true },
+      name: { type: 'string', required: true, indexed: true },
+      displayName: { type: 'string' },
+      createdAt: { type: 'datetime', required: true },
+      updatedAt: { type: 'datetime', required: true },
+    },
+  },
+  OU: {
+    label: 'OU',
+    properties: {
+      id: { type: 'string', required: true, unique: true },
+      name: { type: 'string', required: true, indexed: true },
+      distinguishedName: { type: 'string' },
+      createdAt: { type: 'datetime', required: true },
+      updatedAt: { type: 'datetime', required: true },
+    },
+  },
+  DomainController: {
+    label: 'DomainController',
+    properties: {
+      id: { type: 'string', required: true, unique: true },
+      hostname: { type: 'string', required: true, indexed: true },
+      ip: { type: 'string', indexed: true },
+      domain: { type: 'string', required: true },
+      createdAt: { type: 'datetime', required: true },
+      updatedAt: { type: 'datetime', required: true },
+    },
+  },
+  TrustRelationship: {
+    label: 'TrustRelationship',
+    properties: {
+      id: { type: 'string', required: true, unique: true },
+      sourceDomain: { type: 'string', required: true },
+      targetDomain: { type: 'string', required: true },
+      trustType: { type: 'string', required: true },
+      trustDirection: { type: 'string', required: true },
+      createdAt: { type: 'datetime', required: true },
+      updatedAt: { type: 'datetime', required: true },
+    },
+  },
 };
 
 // ============================================================================
@@ -261,6 +365,18 @@ export const RELATIONSHIP_SCHEMAS: Record<RelationshipType, RelationshipSchema> 
   REDIRECTS_TO: { from: ['URL'], to: ['URL'] },
   CONTAINS: { from: ['Domain'], to: ['Domain', 'Subdomain'] },
   DEPENDS_ON: { from: ['Technology'], to: ['Technology'] },
+  // Post-exploitation relationship schemas
+  MEMBER_OF: { from: ['User'], to: ['Group'] },
+  ADMIN_TO: { from: ['User', 'Group'], to: ['Host'] },
+  HAS_SESSION: { from: ['Host'], to: ['User'] },
+  CAN_RDPTO: { from: ['User', 'Group'], to: ['Host'] },
+  CAN_PSREMOTE: { from: ['User', 'Group'], to: ['Host'] },
+  HAS_SPN: { from: ['User'], to: ['Service'] },
+  TRUSTS: { from: ['Domain'], to: ['Domain'] },
+  COMPROMISED: { from: ['Session'], to: ['Host'] },
+  LATERAL_MOVE_TO: { from: ['Host'], to: ['Host'] },
+  ESCALATED_ON: { from: ['User'], to: ['Host'] },
+  CREDENTIAL_FOR: { from: ['Credential'], to: ['User'] },
 };
 
 // ============================================================================

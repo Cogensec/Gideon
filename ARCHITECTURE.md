@@ -8,7 +8,7 @@ Gideon is an autonomous cybersecurity operations assistant built with TypeScript
 - Searches vulnerability databases
 - Generates hardening recommendations
 - Creates structured incident reports
-- **DEFENSIVE ONLY**: No exploit creation, intrusion tools, or offensive capabilities
+- **DUAL MODE**: Operates as a defensive analyst by default. When explicitly authorized, unlocks **Red Team Mode** for autonomous sandboxed exploitation, C2 interaction, and post-exploitation mapping.
 
 ## 2. Core Architecture
 
@@ -47,7 +47,7 @@ Gideon is an autonomous cybersecurity operations assistant built with TypeScript
           │                              │
 ┌─────────▼──────────┐        ┌─────────▼──────────────────────┐
 │   Scratchpad       │        │   Security Tools Layer         │
-│ (scratchpad.ts)    │        │   (src/tools/security/)        │
+│ (scratchpad.ts)    │        │   (src/tools/ & src/skills/)   │
 │                    │        │                                │
 │ - Query tracking   │        │ ┌──────────────────────────┐   │
 │ - Tool results     │        │ │  security_search         │   │
@@ -55,18 +55,22 @@ Gideon is an autonomous cybersecurity operations assistant built with TypeScript
 │ - Verification logs│        │ │   routing)               │   │
 │ - Output artifacts │        │ └────────┬─────────────────┘   │
 │   (MD + JSON)      │        │          │                     │
-└────────────────────┘        │ ┌────────▼─────────────────┐   │
+└────────────────────┘        ├──────────▼─────────────────────┤
+                              │   Action Engine & Sandbox      │
+                              │   (src/engine/action-engine.ts)│
+                              │   - Docker Sandboxing          │
+                              │   - Tool Adapters (Nmap, msf)  │
+                              └──────────┬─────────────────────┘
+                              │ ┌────────▼─────────────────┐   │
                               │ │  Security Connectors     │   │
                               │ │  - cve-connector         │   │
-                              │ │    (NVD, CISA KEV)       │   │
-                              │ │  - advisory-connector    │   │
-                              │ │    (vendor advisories)   │   │
                               │ │  - ioc-connector         │   │
-                              │ │    (VirusTotal, AbuseIPDB)│  │
                               │ │  - news-connector        │   │
-                              │ │    (security news feeds) │   │
-                              │ │  - breach-connector      │   │
-                              │ │    (HaveIBeenPwned, etc) │   │
+                              │ └──────────────────────────┘   │
+                              │                                │
+                              │ ┌──────────────────────────┐   │
+                              │ │  C2 Manager (Red Team)   │   │
+                              │ │  (Sliver, Mythic bridge) │   │
                               │ └──────────────────────────┘   │
                               │                                │
                               │ ┌──────────────────────────┐   │
@@ -155,27 +159,37 @@ Map CLI commands to agent workflows:
 - `json-generator.ts`: Structured data export
 - `stix-generator.ts`: STIX 2.1 format (optional)
 
-## 5. Safety & Guardrails
+### 4.5 Action Engine & Sandbox (`src/engine/`)
+- `action-engine.ts`: Orchestrates tool execution
+- `sandbox.ts`: Docker-based process wrapping and resource limits
+- `tool-adapters.ts`: Wrappers for nmap, sqlmap, nuclei
 
-### Non-Negotiable Rules (Enforced in Code)
+### 4.6 C2 Framework Integration (`src/c2/`)
+- `c2-manager.ts`: Core C2 tracking and tool exposures
+- `adapters/sliver-adapter.ts`: Sliver RPC mappings
+
+## 5. Safety & Guardrails (Dual-Mode)
+
+### Defensive Mode (Default)
 
 1. **Read-Only by Default**: All tools default to read-only mode. No system modification capabilities.
+2. **No Offensive Capabilities**: Exploitation requests blocked, tools unavailable.
 
-2. **No Offensive Capabilities**:
-   - No exploit code generation
-   - No intrusion instructions
-   - No malware creation
-   - No credential theft tools
-   - No evasion techniques
+### Red Team Mode (Authorized)
 
-3. **Explicit Authorization Required**: Any potentially destructive operations require explicit user confirmation and are logged.
+1. **Scope Enforcement**: Every execution via `ActionEngine` or `C2Manager` is validated against the active `EngagementScope`. Out of scope attempts are hard-blocked.
+2. **Container Isolation**: Offensive tool operations must execute inside `gideon-toolbox` docker containers to protect the host OS.
+3. **Audit Trail**: Every execution (success or failure) is logged with cryptographically referenced audit records indicating risk level and target.
 
-4. **Data Handling**:
-   - No plaintext storage of credentials
-   - Redaction of sensitive data in logs
+### Universal Safety (Active in Both Modes)
+
+1. **Jailbreak Defenses**: NeMo guardrails block prompt injections and adversarial hijacking attempts at all times.
+2. **Data Handling**:
+   - No plaintext storage of credentials (except explicitly requested harvest dumps)
+   - Redaction of sensitive data in external API queries
    - Clear labeling of assumptions vs. facts
 
-5. **Rate Limiting & Caching**: Prevent abuse of external APIs.
+3. **Rate Limiting & Caching**: Prevent abuse of external OSINT APIs.
 
 ### Implementation
 - Pre-execution validation in agent loop

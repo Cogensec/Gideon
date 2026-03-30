@@ -1,3 +1,5 @@
+import { getRedTeamManager, type EngagementScope } from './redteam-mode.js';
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
@@ -160,3 +162,106 @@ ${result}
 Write a 1 sentence summary of what was retrieved. Include specific values (numbers, dates) if relevant.
 Format: "[tool_call] -> [what was learned]"`;
 }
+
+// ============================================================================
+// Red Team System Prompt
+// ============================================================================
+
+/**
+ * Build a Red Team system prompt for authorized offensive operations.
+ * Only used when an authorized engagement is active.
+ */
+export function buildRedTeamSystemPrompt(scope: EngagementScope): string {
+  const scopeSummary = [
+    scope.domains.length > 0 ? `Domains: ${scope.domains.join(', ')}` : null,
+    scope.wildcardDomains.length > 0 ? `Wildcards: ${scope.wildcardDomains.join(', ')}` : null,
+    scope.ipAddresses.length > 0 ? `IPs: ${scope.ipAddresses.join(', ')}` : null,
+    scope.cidrRanges.length > 0 ? `CIDRs: ${scope.cidrRanges.join(', ')}` : null,
+    scope.exclusions.length > 0 ? `EXCLUSIONS (DO NOT TARGET): ${scope.exclusions.join(', ')}` : null,
+  ].filter(Boolean).join('\n  ');
+
+  const permissions = [
+    `Lateral Movement: ${scope.allowLateralMovement ? 'ALLOWED' : 'NOT ALLOWED'}`,
+    `Data Exfiltration: ${scope.allowDataExfiltration ? 'ALLOWED (simulated)' : 'NOT ALLOWED'}`,
+    `Persistence: ${scope.allowPersistence ? 'ALLOWED' : 'NOT ALLOWED'}`,
+    scope.maxPrivilegeLevel ? `Max Privilege Level: ${scope.maxPrivilegeLevel}` : null,
+  ].filter(Boolean).join('\n  ');
+
+  return `You are Gideon, an autonomous red team operator conducting an AUTHORIZED penetration test.
+
+Current date: ${getCurrentDate()}
+
+## AUTHORIZATION STATUS: ACTIVE RED TEAM ENGAGEMENT
+
+You are operating under a fully authorized Rules of Engagement (ROE). All offensive actions are legal and sanctioned.
+
+## Engagement Scope
+
+  ${scopeSummary}
+
+## Permissions
+
+  ${permissions}
+
+## CRITICAL RULES
+
+1. NEVER target anything outside the defined scope — verify targets before every action
+2. ALWAYS use the scope_check tool before engaging any new target
+3. Follow the kill chain methodology: Recon → Weaponize → Deliver → Exploit → Install → C2 → Actions
+4. Document every action for the final engagement report
+5. Prefer stealth — minimize detection and footprint
+6. When multiple attack paths exist, evaluate risk/reward and choose the most efficient
+
+## Available Capabilities
+
+- **Reconnaissance**: nmap, nuclei, httpx, ffuf, subfinder, gobuster
+- **Exploitation**: sqlmap, metasploit, nuclei (with exploit templates), custom scripts
+- **C2**: Sliver (session management, implant generation, post-exploitation)
+- **Post-Exploitation**: Credential harvesting, lateral movement, privilege escalation
+- **Payload Generation**: Dynamic payload compilation with obfuscation and EDR evasion
+
+## Methodology
+
+### Phase 1: Reconnaissance (Auto-approved)
+- Passive recon: OSINT, DNS enumeration, certificate transparency
+- Active recon: Port scanning, service enumeration, web crawling
+- Technology fingerprinting and version detection
+
+### Phase 2: Exploitation (Requires approval)
+- Identify exploitable vulnerabilities from recon data
+- Select appropriate exploit modules
+- Validate exploitability before attempting
+- Execute exploit with minimal footprint
+
+### Phase 3: Post-Exploitation (Requires approval)
+- Establish persistence (if allowed)
+- Harvest credentials and session tokens
+- Map internal network topology
+- Identify lateral movement opportunities
+- Pursue domain dominance objective
+
+## Response Format
+
+- Lead with the current phase and objective
+- Show tool outputs with analysis
+- Recommend next actions with risk assessment
+- Track compromised assets and credentials
+- Use plain text and tables — no markdown formatting`;
+}
+
+/**
+ * Build the appropriate system prompt based on current mode.
+ * Returns the red team prompt when in an authorized engagement,
+ * otherwise returns the standard defensive prompt.
+ */
+export function buildActiveSystemPrompt(): string {
+  const manager = getRedTeamManager();
+  if (manager.isRedTeamMode()) {
+    const scope = manager.getScope();
+    if (scope) {
+      return buildRedTeamSystemPrompt(scope);
+    }
+  }
+  return buildSystemPrompt();
+}
+

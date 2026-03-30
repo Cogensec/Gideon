@@ -12,7 +12,7 @@ Gideon is an **autonomous cybersecurity operations assistant** that performs sec
 In a world of rapidly evolving threats, security teams are often overwhelmed by the sheer volume of CVEs, IOCs, and security news. Gideon acts as a force multiplier by:
 
 - **Automating Research**: Turns complex security questions into structured, data-backed answers.
-- **Ensuring Safety**: A strict defensive-only mandate prevents misuse and focuses on protection.
+- **Dual Mode Precision**: Runs defensive diagnostics by default, and sandboxed [Red Team Mode](features/red-team) autonomous exploitation when explicitly authorized.
 - **Leveraging GPU Acceleration**: Seamlessly integrates with the NVIDIA AI stack for high-performance operations.
 
 ## Key Capabilities
@@ -29,12 +29,12 @@ In a world of rapidly evolving threats, security teams are often overwhelmed by 
 ## The Gideon Philosophy
 
 > [!IMPORTANT]
-> **Defensive Only**. Gideon is built *by* defenders, *for* defenders. It will never generate exploit code, malware, or provide instructions for offensive maneuvers.
+> **Dual Mode Principle**. Gideon operates securely as a defensive analyst by default. Operating in **Red Team Mode** requires explicit engagement scopes, locking offensive tools (nmap, sqli) to isolated Docker sandboxes and preventing lateral runaway.
 
 Gideon follows a set of core principles:
 1. **Transparency**: All reasoning is logged in a scratchpad for auditability.
 2. **Corroboration**: Data is validated across multiple sources before being presented as fact.
-3. **Safety First**: Every tool and command includes guardrails to prevent offensive use.
+3. **Safety First**: Red Team Mode includes scope-enforced execution and Docker-based Action Engine guardrails to prevent unapproved maneuvers.
 
 ---
 

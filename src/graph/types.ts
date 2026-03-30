@@ -27,7 +27,17 @@ export type NodeLabel =
   | 'WhoIsRecord'
   | 'Finding'
   | 'AttackChain'
-  | 'Session';
+  | 'Session'
+  // Post-exploitation node types
+  | 'Host'
+  | 'User'
+  | 'Group'
+  | 'Credential'
+  | 'Share'
+  | 'GPO'
+  | 'OU'
+  | 'DomainController'
+  | 'TrustRelationship';
 
 // ============================================================================
 // Base Node Properties
@@ -201,7 +211,19 @@ export type RelationshipType =
   | 'AUTHENTICATES_WITH'
   | 'REDIRECTS_TO'
   | 'CONTAINS'
-  | 'DEPENDS_ON';
+  | 'DEPENDS_ON'
+  // Post-exploitation relationship types
+  | 'MEMBER_OF'
+  | 'ADMIN_TO'
+  | 'HAS_SESSION'
+  | 'CAN_RDPTO'
+  | 'CAN_PSREMOTE'
+  | 'HAS_SPN'
+  | 'TRUSTS'
+  | 'COMPROMISED'
+  | 'LATERAL_MOVE_TO'
+  | 'ESCALATED_ON'
+  | 'CREDENTIAL_FOR';
 
 export interface Relationship {
   type: RelationshipType;
@@ -300,6 +322,15 @@ export const NodeLabelSchema = z.enum([
   'Finding',
   'AttackChain',
   'Session',
+  'Host',
+  'User',
+  'Group',
+  'Credential',
+  'Share',
+  'GPO',
+  'OU',
+  'DomainController',
+  'TrustRelationship',
 ]);
 
 export const SeveritySchema = z.enum(['critical', 'high', 'medium', 'low', 'info']);
@@ -328,4 +359,15 @@ export const RelationshipTypeSchema = z.enum([
   'REDIRECTS_TO',
   'CONTAINS',
   'DEPENDS_ON',
+  'MEMBER_OF',
+  'ADMIN_TO',
+  'HAS_SESSION',
+  'CAN_RDPTO',
+  'CAN_PSREMOTE',
+  'HAS_SPN',
+  'TRUSTS',
+  'COMPROMISED',
+  'LATERAL_MOVE_TO',
+  'ESCALATED_ON',
+  'CREDENTIAL_FOR',
 ]);

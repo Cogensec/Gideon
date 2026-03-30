@@ -21,7 +21,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-98%25-3178c6?style=flat-square&logo=typescript)](https://github.com/Cogensec/Gideon)
 [![NVIDIA Inception](https://img.shields.io/badge/NVIDIA-Inception%20Program-76b900?style=flat-square&logo=nvidia)](https://www.nvidia.com/en-us/startups/)
 [![Models](https://img.shields.io/badge/AI%20Models-400%2B-purple?style=flat-square)](https://openrouter.ai)
-[![Security](https://img.shields.io/badge/mode-Defensive%20Only-green?style=flat-square)](https://cogensec.com)
+[![Security](https://img.shields.io/badge/mode-Dual:Defensive/RedTeam-green?style=flat-square)](https://cogensec.com)
 [![NVD](https://img.shields.io/badge/CVE%20Source-NVD%20%2B%20CISA%20KEV-red?style=flat-square)](https://nvd.nist.gov)
 [![IOC](https://img.shields.io/badge/IOC%20Analysis-VirusTotal%20%2B%20AbuseIPDB-orange?style=flat-square)](https://www.virustotal.com)
 [![Search](https://img.shields.io/badge/Neural%20Search-Exa%20AI-black?style=flat-square)](https://exa.ai)
@@ -49,7 +49,7 @@ Gideon is not a script. It is not a scanner. It is an **autonomous security oper
 
 Where traditional security tools require expert configuration and manual correlation, Gideon operates with **goal-directed autonomy**: break down the problem, retrieve the data, validate the results, and synthesize a clear picture of the threat landscape.
 
-Built from the ground up for **defensive operations** — detection, mitigation, and protection. Every response is grounded in real data, every action is auditable, and every output is actionable.
+Built for **dual-mode operations** — functioning as a defensive analyst by default (detection, mitigation, and protection) but capable of transitioning into a fully autonomous **Red Team Mode** for authorized offensive security engagements. Every response is grounded in real data, every action is auditable, and every output is actionable.
 
 ```
 > gideon cve CVE-2024-21887
@@ -78,8 +78,9 @@ Built from the ground up for **defensive operations** — detection, mitigation,
 |🤖 **Multi-Model**      |Unified access to 400+ LLMs from OpenAI, Anthropic, Google, and 50+ providers   |OpenRouter            |
 |📰 **Daily Briefings**  |Automated threat intelligence digests with notable incident tracking            |Live feeds            |
 |🛡️ **Policy Generation**|Security hardening checklists for AWS, Azure, GCP, Kubernetes, and Okta         |Framework-aligned     |
+|🔴 **Red Teaming**      |Sandboxed autonomous exploitation, C2 session wrapping, and lateral movement    |Internal / C2         |
 |🔌 **MCP Protocol**     |Extensible tool integration via Model Context Protocol servers                  |Custom + community    |
-|✅ **Self-Verification**|Cross-source validation with defensive-only safety blocks built in              |Internal              |
+|✅ **Self-Verification**|Cross-source validation with defensive-only and engagement-scoped safety blocks |Internal              |
 
 -----
 
@@ -129,6 +130,31 @@ Gideon’s modular **Skills** architecture extends core capabilities with specia
 ```
 
 **Modes**: `bounty` · `pentest` · `research` · `ctf`
+
+-----
+
+### ☠️ Post-Exploitation [RED TEAM MODE]
+
+> Autonomous post-exploitation operations for authorized engagements: AD mapping, lateral movement, and privilege escalation.
+
+```bash
+> skills postex-help                   # Show command help
+> skills post-exploitation lateral [IP]# Plan intelligent lateral movement
+> skills post-exploitation sitrep      # Display C2 sessions and mapped hosts
+> skills post-exploitation harvest     # Create credential harvesting playbooks
+```
+
+-----
+
+### 🗡️ Weaponization [RED TEAM MODE]
+
+> Payload generation, obfuscation, and EDR evasion library.
+
+```bash
+> skills weaponization payload generate reverse_shell windows 10.10.14.1
+> skills weaponization payload evade   # Recommend EDR bypass techniques
+> skills weaponization payload encode [file] x86/shikata_ga_nai
+```
 
 -----
 
@@ -441,15 +467,18 @@ Gideon/
 
 ## Safety & Ethics
 
-Gideon is designed **exclusively for defensive security operations** — detection, mitigation, analysis, and protection. The following safety mechanisms are active at all times:
+Gideon is designed with a strict **Dual-Mode Security Architecture**. By default, it operates in **Defensive Mode** — focusing on detection, mitigation, analysis, and protection. 
 
-1. **Query Filtering** — Offensive exploitation requests are detected and rejected before execution
-1. **Defensive Prompting** — Agent reasoning is anchored to mitigation, patching, and protection outcomes
-1. **Data Redaction** — Sensitive values (keys, credentials, PII) are automatically scrubbed from logs and outputs
-1. **NeMo Guardrails** — Enterprise-grade topic control, self-correction, and jailbreak interception
-1. **Audit Trail** — Every agent action is logged with a traceable, reviewable record
+When explicitly authorized, operators can unlock **Red Team Mode** for active engagements. The following safety mechanisms govern both modes:
 
-> ⚠️ **Legal Notice**: Gideon is intended for authorized security research, defensive operations, and educational use only. Always ensure you have explicit authorization before analyzing any system, IP, or domain that you do not own. Users are solely responsible for compliance with applicable laws.
+1. **Scope Enforcement** — In Red Team Mode, every offensive action (Nmap, Metasploit, SQLMap) is validated against an explicit `EngagementScope`. Out-of-scope executions are hard-blocked.
+2. **Sandboxed Execution** — All offensive tools run within an isolated, resource-constrained Docker sandbox (`gideon-toolbox`).
+3. **Defensive Prompting** — In Defensive Mode, agent reasoning is anchored strictly to mitigation, patching, and protection outcomes.
+4. **Data Redaction** — Sensitive values (keys, credentials, PII) are automatically scrubbed from logs and outputs.
+5. **NeMo Guardrails** — Enterprise-grade topic control, self-correction, and jailbreak interception remain active across *both* modes to prevent adversarial manipulation of the agent itself.
+6. **Audit Trail** — Every agent action, exploitation attempt, and tool invocation is logged with a traceable, reviewable record in the engagement audit file.
+
+> ⚠️ **Legal Notice**: Gideon's Red Team Mode is intended for explicitly authorized security research, comprehensive penetration testing, and educational use only. Always ensure you have legal authorization before analyzing or exploiting any system, IP, or domain. Users are solely responsible for compliance with applicable laws.
 
 -----
 

@@ -14,6 +14,8 @@ import { ApiKeyConfirm, ApiKeyInput } from './components/ApiKeyPrompt.js';
 import { DebugPanel } from './components/DebugPanel.js';
 import { HistoryItemView, WorkingIndicator } from './components/index.js';
 import { getApiKeyNameForProvider, getProviderDisplayName } from './utils/env.js';
+import { getRedTeamManager } from './agent/redteam-mode.js';
+import { registerRedTeamSkills, unregisterRedTeamSkills } from './skills/index.js';
 
 import { useModelSelection } from './hooks/useModelSelection.js';
 import { useAgentRunner } from './hooks/useAgentRunner.js';
@@ -82,6 +84,64 @@ export function CLI() {
     // Handle model selection command
     if (query === '/model') {
       startSelection();
+      return;
+    }
+    
+    // Handle Red Team mode commands
+    if (query === '/redteam') {
+      const manager = getRedTeamManager();
+      if (manager.isRedTeamMode()) {
+        setError('Red Team mode is already active. Use /redteam-off to deactivate.');
+        return;
+      }
+      
+      // Activate with a demo engagement for now
+      // In production, this would trigger an interactive authorization flow
+      const result = await manager.activateRedTeamMode({
+        authorizedBy: 'operator',
+        organization: 'Internal Red Team',
+        rulesOfEngagement: 'authorized-engagement',
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
+        engagementType: 'red-team',
+        scope: {
+          domains: [],
+          wildcardDomains: [],
+          ipAddresses: ['127.0.0.1'],
+          cidrRanges: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'],
+          exclusions: [],
+          allowLateralMovement: true,
+          allowDataExfiltration: false,
+          allowPersistence: false,
+        },
+      });
+      
+      if (result.success) {
+        await registerRedTeamSkills();
+        // Push status to history through a query
+        await saveMessage('/redteam');
+        resetNavigation();
+        const statusResult = await runQuery('Show me the current Red Team engagement status');
+        if (statusResult?.answer) {
+          await updateAgentResponse(statusResult.answer);
+        }
+      } else {
+        setError(result.error || 'Failed to activate Red Team mode');
+      }
+      return;
+    }
+    
+    if (query === '/redteam-off') {
+      const manager = getRedTeamManager();
+      manager.deactivateRedTeamMode('User requested deactivation');
+      await unregisterRedTeamSkills();
+      setError(''); // Clear any errors
+      return;
+    }
+    
+    if (query === '/redteam-status') {
+      const manager = getRedTeamManager();
+      console.log(manager.formatStatus());
       return;
     }
     

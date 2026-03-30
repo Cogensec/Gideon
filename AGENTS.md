@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Gideon is a cybersecurity operations assistant built with TypeScript, Bun, React (Ink), and LangChain. It integrates NVIDIA AI technologies for GPU acceleration.
+Gideon is a cybersecurity operations assistant built with TypeScript, Bun, React (Ink), and LangChain. It integrates NVIDIA AI technologies for GPU acceleration. Gideon operates in two modes: **Defensive Mode** (default) for threat intelligence, analysis, and hardening, and **Red Team Mode** for authorized offensive security engagements.
 
 ## Commands
 
@@ -35,9 +35,11 @@ bun test:watch
 ```
 src/
 ├── agent/          # Agent loop implementation (ReAct pattern)
+├── c2/             # C2 framework integration (Sliver, Mythic)
 ├── commands/       # CLI commands (brief, cve, ioc, policy, skills)
 ├── components/     # Ink React components for terminal UI
 ├── connectors/     # External API connectors (NVD, VirusTotal, AbuseIPDB)
+├── engine/         # Action engine for tool orchestration & sandboxed execution
 ├── guardrails/     # NeMo Guardrails config (config.yml, security-rails.co)
 ├── model/          # LLM provider setup (OpenAI, Anthropic, Google, Ollama, NIM)
 ├── skills/         # Modular skill system (see Skills Architecture)
@@ -59,7 +61,9 @@ src/skills/
 ├── data-analytics/       # RAPIDS-powered data processing
 ├── code-scanning/        # Static analysis, vulnerability scanning
 ├── voice/                # PersonaPlex speech-to-speech
-└── governance/           # Access control, audit logging
+├── governance/           # Access control, audit logging
+├── post-exploitation/    # [RED TEAM] Domain mapping, lateral movement, privesc
+└── weaponization/        # [RED TEAM] Payload generation, obfuscation, evasion
 ```
 
 ### Adding a New Skill
@@ -111,6 +115,8 @@ export const mySkill: Skill = {
 | code-scanning | code-analysis | Static vulnerability scanning |
 | voice | voice | PersonaPlex speech AI |
 | governance | governance | Access control, audit logs |
+| post-exploitation | security-research | [RED TEAM] Domain mapping, lateral movement, privesc |
+| weaponization | security-research | [RED TEAM] Payload generation, obfuscation, evasion |
 
 ## Code Style
 
@@ -166,17 +172,28 @@ Required API keys go in `.env` (see `env.example`):
 - User credentials or API keys
 - Production configuration without explicit request
 
-**Security focus:**
-- Gideon is DEFENSIVE ONLY - never generate offensive security code
-- Never provide exploitation techniques, attack tools, or malware
+**Security focus — Dual Mode Architecture:**
+
+Gideon operates in two modes:
+
+**Defensive Mode (default):**
 - Focus on detection, analysis, and remediation
-- Block requests for hacking tutorials or social engineering
+- NeMo Guardrails block offensive topics
+- No exploitation or payload capabilities loaded
+
+**Red Team Mode (authorized engagements only):**
+- Activated via `/redteam` with explicit engagement authorization
+- All operations are scope-validated and audit-logged
+- Human-in-the-loop approval for exploitation and post-exploitation
+- Auto-deactivates after engagement window expires
+- Guardrails remain active for jailbreak/prompt injection defense
 
 **When adding security tools:**
 1. Create connector in `src/connectors/` or `src/tools/security/`
 2. Add rate limiting via Bottleneck
 3. Implement caching with node-cache
 4. Register in `src/tools/index.ts`
+5. For offensive tools: add to `src/engine/tool-adapters.ts` and gate behind Red Team mode
 
 ## Adding New Commands
 
@@ -202,6 +219,29 @@ Main config: `gideon.config.yaml`
 - `sources`: External API endpoints and rate limits
 - `agent`: Loop parameters (max_iterations, confidence_threshold)
 - `safety`: Defensive mode settings
+- `redteam`: Red Team mode configuration (tools, sandbox, audit)
 - `guardrails`: NeMo Guardrails settings
 - `morpheus`: Threat detection pipelines
 - `rapids`: Accelerated analytics settings
+
+## Red Team Architecture
+
+```
+src/agent/redteam-mode.ts    # Mode manager, engagement authorization, scope enforcement
+src/engine/                   # Action Engine for tool orchestration
+├── action-engine.ts          # Core execution orchestrator
+├── sandbox.ts                # Docker-based sandboxed execution
+└── tool-adapters.ts          # nmap, nuclei, sqlmap, metasploit adapters
+src/c2/                       # C2 framework integration
+├── c2-manager.ts             # Unified C2 management layer
+└── adapters/sliver-adapter.ts # Sliver gRPC client
+src/skills/post-exploitation/ # Domain mapping, credential ops, lateral movement
+src/skills/weaponization/     # Payload generation, encoding, obfuscation, EDR evasion
+```
+
+**Key design principles:**
+- Every offensive action is scope-validated before execution
+- All tool executions run inside Docker sandboxes
+- Approval gates for exploitation and post-exploitation phases
+- Full audit trail for engagement reporting
+- Red Team skills are dynamically registered/unregistered with mode changes
