@@ -12,7 +12,7 @@ Gideon is an **autonomous cybersecurity operations assistant** that performs sec
 In a world of rapidly evolving threats, security teams are often overwhelmed by the sheer volume of CVEs, IOCs, and security news. Gideon acts as a force multiplier by:
 
 - **Automating Research**: Turns complex security questions into structured, data-backed answers.
-- **Dual Mode Precision**: Runs defensive diagnostics by default, and sandboxed [Red Team Mode](docs/features/red-team) autonomous exploitation when explicitly authorized.
+- **Dual Mode Precision**: Runs defensive diagnostics by default, and sandboxed [Red Team Mode](/docs/features/red-team) autonomous exploitation when explicitly authorized.
 - **Leveraging GPU Acceleration**: Seamlessly integrates with the NVIDIA AI stack for high-performance operations.
 
 ## Key Capabilities
