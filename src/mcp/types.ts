@@ -232,7 +232,7 @@ export const MCPServerSchema = z.object({
 
 export const MCPToolCallRequestSchema = z.object({
   name: z.string(),
-  arguments: z.record(z.unknown()),
+  arguments: z.record(z.string(), z.unknown()),
 });
 
 export const SecurityToolCategorySchema = z.enum([

@@ -230,12 +230,12 @@ export class MCPClientManager {
       const result = await connection.client.callTool({
         name: request.name,
         arguments: request.arguments,
-      });
+      }) as any;
 
       execution.status = 'completed';
       execution.endTime = new Date().toISOString();
       execution.result = {
-        content: result.content.map((c) => ({
+        content: result.content.map((c: any) => ({
           type: c.type as 'text' | 'image' | 'resource',
           text: c.type === 'text' ? (c as { text: string }).text : undefined,
           mimeType: (c as { mimeType?: string }).mimeType,
@@ -245,7 +245,7 @@ export class MCPClientManager {
         isError: result.isError,
       };
 
-      return execution.result;
+      return execution.result as MCPToolCallResponse;
     } catch (error) {
       execution.status = 'failed';
       execution.endTime = new Date().toISOString();
@@ -305,7 +305,7 @@ export class MCPClientManager {
   private async getTools(client: Client): Promise<MCPTool[]> {
     try {
       const result = await client.listTools();
-      return result.tools.map((t) => ({
+      return result.tools.map((t: any) => ({
         name: t.name,
         description: t.description || '',
         inputSchema: t.inputSchema as MCPTool['inputSchema'],

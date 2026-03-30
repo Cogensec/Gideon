@@ -1020,9 +1020,9 @@ gideon severity --av N --ac L --pr N --ui N --s U --c H --i H --a H
 - Privileges Required: ${cvssInput.privilegesRequired}
 - User Interaction: ${cvssInput.userInteraction}
 - Scope: ${cvssInput.scope}
-- Confidentiality Impact: ${cvssInput.confidentiality}
-- Integrity Impact: ${cvssInput.integrity}
-- Availability Impact: ${cvssInput.availability}
+- Confidentiality Impact: ${cvssInput.confidentialityImpact}
+- Integrity Impact: ${cvssInput.integrityImpact}
+- Availability Impact: ${cvssInput.availabilityImpact}
 `,
       artifacts: {
         json: result,

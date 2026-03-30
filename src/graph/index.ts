@@ -85,9 +85,9 @@ export class GraphClient {
     const session = this.getSession();
     try {
       const result = await session.run(cypher, params);
-      return result.records.map((record) => {
+      return result.records.map((record: any) => {
         const obj: Record<string, unknown> = {};
-        record.keys.forEach((key, index) => {
+        record.keys.forEach((key: string, index: number) => {
           obj[key] = this.convertNeo4jValue(record.get(index));
         });
         return obj as T;
@@ -106,12 +106,12 @@ export class GraphClient {
   ): Promise<T[]> {
     const session = this.getSession();
     try {
-      const result = await session.executeWrite(async (tx) => {
+      const result = await session.executeWrite(async (tx: any) => {
         return tx.run(cypher, params);
       });
-      return result.records.map((record) => {
+      return result.records.map((record: any) => {
         const obj: Record<string, unknown> = {};
-        record.keys.forEach((key, index) => {
+        record.keys.forEach((key: string, index: number) => {
           obj[key] = this.convertNeo4jValue(record.get(index));
         });
         return obj as T;
@@ -293,15 +293,16 @@ export class GraphClient {
     }
 
     // Handle Neo4j Integer
-    if (neo4j.isInt(value)) {
-      return value.toNumber();
+    if (neo4j.isInt(value) && typeof (value as any).toNumber === 'function') {
+      return (value as any).toNumber();
     }
 
     // Handle Neo4j Node
     if (value && typeof value === 'object' && 'properties' in value) {
       const node = value as { labels?: string[]; properties: Record<string, unknown> };
+      const propertiesObj = this.convertNeo4jValue(node.properties) as Record<string, unknown>;
       return {
-        ...this.convertNeo4jValue(node.properties),
+        ...propertiesObj,
         _labels: node.labels,
       };
     }

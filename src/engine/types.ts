@@ -190,5 +190,5 @@ export const ExecutionStepSchema = z.object({
   requiresApproval: z.boolean(),
   timeoutMs: z.number().positive(),
   dependsOn: z.array(z.string()),
-  metadata: z.record(z.unknown()),
+  metadata: z.record(z.string(), z.unknown()),
 });

@@ -332,7 +332,7 @@ export const OpenClawSidecarConfigSchema = z.object({
   enabled: z.boolean().default(true),
 
   /** Gateway connection settings */
-  gateway: OpenClawGatewayConfigSchema.default(),
+  gateway: OpenClawGatewayConfigSchema.default({} as any),
 
   /** Gateway Sentinel (WS1) */
   sentinel: z.object({
@@ -345,7 +345,7 @@ export const OpenClawSidecarConfigSchema = z.object({
     autoResponse: z.boolean().default(false),
     /** Alert on CVE-2026-25253 patterns */
     detectCve202625253: z.boolean().default(true),
-  }).default(),
+  }).default({} as any),
 
   /** Skill Scanner (WS2) */
   skillScanner: z.object({
@@ -358,7 +358,7 @@ export const OpenClawSidecarConfigSchema = z.object({
     checkIOCs: z.boolean().default(true),
     /** Analyze publisher reputation */
     publisherAnalysis: z.boolean().default(true),
-  }).default(),
+  }).default({} as any),
 
   /** Prompt Injection Defense (WS3) */
   injectionDefense: z.object({
@@ -373,7 +373,7 @@ export const OpenClawSidecarConfigSchema = z.object({
     detectHiddenInstructions: z.boolean().default(true),
     /** Detection confidence threshold (0.0-1.0) */
     confidenceThreshold: z.number().default(0.7),
-  }).default(),
+  }).default({} as any),
 
   /** Hardening Auditor (WS4) */
   hardeningAuditor: z.object({
@@ -384,7 +384,7 @@ export const OpenClawSidecarConfigSchema = z.object({
     detectDrift: z.boolean().default(true),
     /** Check for internet exposure */
     checkExposure: z.boolean().default(true),
-  }).default(),
+  }).default({} as any),
 
   /** Credential Guard (WS5) */
   credentialGuard: z.object({
@@ -397,7 +397,7 @@ export const OpenClawSidecarConfigSchema = z.object({
     redactOutbound: z.boolean().default(true),
     /** Monitor for plaintext credential storage */
     auditStorage: z.boolean().default(true),
-  }).default(),
+  }).default({} as any),
 });
 
 export type OpenClawSidecarConfig = z.infer<typeof OpenClawSidecarConfigSchema>;

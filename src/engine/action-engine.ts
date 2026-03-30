@@ -40,12 +40,8 @@ export class ActionEngine {
     this.useSandbox = useSandbox;
   }
 
-  /**
-   * Execute a single tool with structured input.
-   * Handles scope validation, approval, sandboxed execution, and output parsing.
-   */
-  async executeStep(step: ExecutionStep): AsyncGenerator<ExecutionEvent> {
-    return this._executeStep(step);
+  async *executeStep(step: ExecutionStep): AsyncGenerator<ExecutionEvent> {
+    yield* this._executeStep(step);
   }
 
   /**

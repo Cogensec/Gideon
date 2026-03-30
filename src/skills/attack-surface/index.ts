@@ -271,8 +271,8 @@ async function handleExport(args: string[], ctx: SkillCommandContext): Promise<S
     };
 
     if (format === 'csv') {
-      const nodesCsv = nodes.map((n: Record<string, unknown>) =>
-        Object.values(n).join(',')
+      const nodesCsv = nodes.map((n: unknown) =>
+        Object.values(n as Record<string, unknown>).join(',')
       ).join('\n');
 
       return {
