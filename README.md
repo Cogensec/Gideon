@@ -15,7 +15,7 @@
 
 <br/>
 
-[![Version](https://img.shields.io/badge/version-v1.1.0-brightgreen?style=flat-square)](https://github.com/Cogensec/Gideon/releases)
+[![Version](https://img.shields.io/badge/version-v1.2.0-brightgreen?style=flat-square)](https://github.com/Cogensec/Gideon/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Runtime](https://img.shields.io/badge/runtime-Bun-f9f1e1?style=flat-square&logo=bun)](https://bun.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-98%25-3178c6?style=flat-square&logo=typescript)](https://github.com/Cogensec/Gideon)
