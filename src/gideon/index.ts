@@ -58,10 +58,10 @@ export {
   generatePassiveReconCommands,
   generateActiveReconCommands,
   generateQuickCheckCommands,
-  CVSSInput,
-  CVSSResult,
   calculateCVSS,
 } from './recon.js';
+
+export type { CVSSInput, CVSSResult } from './recon.js';
 
 // Report generation
 export {
