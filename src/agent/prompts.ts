@@ -1,4 +1,6 @@
 import { getRedTeamManager, type EngagementScope } from './redteam-mode.js';
+import { LearnedSkillStore } from '../skills/learned/learned-skill-store.js';
+import { getLearningConfig } from '../utils/config-loader.js';
 
 // ============================================================================
 // Helper Functions
@@ -256,12 +258,30 @@ You are operating under a fully authorized Rules of Engagement (ROE). All offens
  */
 export function buildActiveSystemPrompt(): string {
   const manager = getRedTeamManager();
-  if (manager.isRedTeamMode()) {
+  const redTeam = manager.isRedTeamMode();
+
+  let base: string;
+  if (redTeam) {
     const scope = manager.getScope();
-    if (scope) {
-      return buildRedTeamSystemPrompt(scope);
-    }
+    base = scope ? buildRedTeamSystemPrompt(scope) : buildSystemPrompt();
+  } else {
+    base = buildSystemPrompt();
   }
-  return buildSystemPrompt();
+
+  return `${base}${buildLearnedPlaybookBlock(redTeam ? 'redteam' : 'defensive')}`;
+}
+
+/**
+ * Append the learned-playbook block (auto-grown by the background learning loop)
+ * to the system prompt. Returns '' when learning is disabled or there are none.
+ */
+function buildLearnedPlaybookBlock(mode: 'defensive' | 'redteam'): string {
+  try {
+    if (!getLearningConfig().enabled) return '';
+    const block = new LearnedSkillStore().format(mode);
+    return block ? `\n\n${block}` : '';
+  } catch {
+    return '';
+  }
 }
 

@@ -84,6 +84,8 @@ export interface DoneEvent {
   answer: string;
   toolCalls: Array<{ tool: string; args: Record<string, unknown>; result: string }>;
   iterations: number;
+  /** Path to the scratchpad JSONL for this turn (for the background learning loop). */
+  scratchpadPath?: string;
 }
 
 /**

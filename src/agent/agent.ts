@@ -8,6 +8,12 @@ import { extractTextContent, hasToolCalls } from '../utils/ai-message.js';
 import { streamLlmResponse } from '../utils/llm-stream.js';
 import { InMemoryChatHistory } from '../utils/in-memory-chat-history.js';
 import { getToolDescription } from '../utils/tool-description.js';
+import { MemoryStore } from '../memory/memory-store.js';
+import { MemoryManager } from '../memory/memory-manager.js';
+import type { MemoryScope } from '../memory/types.js';
+import { getMemoryConfig, getCompressionConfig } from '../utils/config-loader.js';
+import { getRedTeamManager } from './redteam-mode.js';
+import { ContextCompressor, estimateTokens, newCompressionState, type CompressionState } from './context-compressor.js';
 import {
   checkInputRails,
   checkOutputRails,
@@ -31,11 +37,14 @@ export class Agent {
   private readonly toolMap: Map<string, StructuredToolInterface>;
   private readonly systemPrompt: string;
   private readonly signal?: AbortSignal;
+  private readonly memoryManager: MemoryManager | null;
+  private readonly compressor: ContextCompressor | null;
 
   private constructor(
     config: AgentConfig,
     tools: StructuredToolInterface[],
-    systemPrompt: string
+    systemPrompt: string,
+    memoryManager: MemoryManager | null
   ) {
     this.model = config.model ?? 'gpt-5.2';
     this.modelProvider = config.modelProvider ?? 'openai';
@@ -44,6 +53,17 @@ export class Agent {
     this.toolMap = new Map(tools.map(t => [t.name, t]));
     this.systemPrompt = systemPrompt;
     this.signal = config.signal;
+    this.memoryManager = memoryManager;
+
+    let compressor: ContextCompressor | null = null;
+    try {
+      if (getCompressionConfig().enabled) {
+        compressor = new ContextCompressor(this.model, this.modelProvider);
+      }
+    } catch {
+      compressor = null;
+    }
+    this.compressor = compressor;
   }
 
   /**
@@ -51,12 +71,35 @@ export class Agent {
    */
   static create(config: AgentConfig = {}): Agent {
     const model = config.model ?? 'gpt-5.2';
+    const modelProvider = config.modelProvider ?? 'openai';
     const tools: StructuredToolInterface[] = [
       createSecuritySearch(model),
       ...(process.env.TAVILY_API_KEY ? [tavilySearch] : []),
     ];
     const systemPrompt = buildActiveSystemPrompt();
-    return new Agent(config, tools, systemPrompt);
+
+    // Persistent memory (Hermes-inspired). Disabled via config or on failure.
+    let memoryManager: MemoryManager | null = null;
+    try {
+      const memCfg = getMemoryConfig();
+      if (memCfg.enabled && memCfg.inject) {
+        memoryManager = new MemoryManager(new MemoryStore(), model, modelProvider);
+      }
+    } catch {
+      memoryManager = null;
+    }
+
+    return new Agent(config, tools, systemPrompt, memoryManager);
+  }
+
+  /**
+   * Memory scope for the current operating mode. Defensive turns recall
+   * defensive + shared facts; red-team turns recall redteam + shared facts.
+   */
+  private currentScopes(): MemoryScope[] {
+    return getRedTeamManager().isRedTeamMode()
+      ? ['redteam', 'shared']
+      : ['defensive', 'shared'];
   }
 
   /**
@@ -96,11 +139,22 @@ export class Agent {
 
     // Create scratchpad for this query - single source of truth for all work done
     const scratchpad = new Scratchpad(query);
-    
-    // Build initial prompt with conversation history context
-    let currentPrompt = this.buildInitialPrompt(query, inMemoryHistory);
-    
+
+    // Recall persistent memory relevant to this turn (fenced, lower-trust block).
+    let memoryBlock = '';
+    if (this.memoryManager) {
+      try {
+        memoryBlock = await this.memoryManager.prefetch(query, this.currentScopes(), this.signal);
+      } catch {
+        memoryBlock = '';
+      }
+    }
+
+    // Build initial prompt with memory + conversation history context
+    let currentPrompt = this.buildInitialPrompt(query, inMemoryHistory, memoryBlock);
+
     let iteration = 0;
+    const compressionState: CompressionState = newCompressionState();
 
     // Main agent loop
     while (iteration < this.maxIterations) {
@@ -137,7 +191,7 @@ export class Agent {
           }
         }
         
-        yield { type: 'done', answer: fullAnswer, toolCalls: scratchpad.getToolCallRecords(), iterations: iteration };
+        yield { type: 'done', answer: fullAnswer, toolCalls: scratchpad.getToolCallRecords(), iterations: iteration, scratchpadPath: scratchpad.path };
         return;
       }
 
@@ -151,8 +205,17 @@ export class Agent {
         result = await generator.next();
       }
       
-      // Build iteration prompt from scratchpad (always has full accumulated history)
-      currentPrompt = buildIterationPrompt(query, scratchpad.getToolSummaries());
+      // Build iteration prompt from scratchpad (always has full accumulated history).
+      // Compress the accumulated summaries first if they have grown too large
+      // (matters mainly for long red-team engagements).
+      let summaries = scratchpad.getToolSummaries();
+      if (this.compressor) {
+        const tokens = estimateTokens(summaries.join('\n'));
+        if (this.compressor.shouldCompress(tokens, compressionState)) {
+          ({ summaries } = await this.compressor.compress(summaries, compressionState, this.signal));
+        }
+      }
+      currentPrompt = buildIterationPrompt(query, summaries);
     }
 
     // Max iterations reached - still generate proper final answer
@@ -170,7 +233,8 @@ export class Agent {
       type: 'done',
       answer: fullAnswer || `Reached maximum iterations (${this.maxIterations}).`,
       toolCalls: scratchpad.getToolCallRecords(),
-      iterations: iteration
+      iterations: iteration,
+      scratchpadPath: scratchpad.path
     };
   }
 
@@ -276,19 +340,21 @@ export class Agent {
    */
   private buildInitialPrompt(
     query: string,
-    inMemoryChatHistory?: InMemoryChatHistory
+    inMemoryChatHistory?: InMemoryChatHistory,
+    memoryBlock = ''
   ): string {
-    if (!inMemoryChatHistory?.hasMessages()) {
-      return query;
-    }
+    const prefix = memoryBlock ? `${memoryBlock}\n\n` : '';
 
-    const userMessages = inMemoryChatHistory.getUserMessages();
+    const userMessages = inMemoryChatHistory?.hasMessages()
+      ? inMemoryChatHistory.getUserMessages()
+      : [];
+
     if (userMessages.length === 0) {
-      return query;
+      return prefix ? `${prefix}Current query to answer: ${query}` : query;
     }
 
     const historyContext = userMessages.map((msg, i) => `${i + 1}. ${msg}`).join('\n');
-    return `Current query to answer: ${query}\n\nPrevious user queries for context:\n${historyContext}`;
+    return `${prefix}Current query to answer: ${query}\n\nPrevious user queries for context:\n${historyContext}`;
   }
 
   /**

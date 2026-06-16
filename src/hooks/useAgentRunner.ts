@@ -3,6 +3,8 @@ import { Agent } from '../agent/agent.js';
 import { InMemoryChatHistory } from '../utils/in-memory-chat-history.js';
 import type { HistoryItem, WorkingState } from '../components/index.js';
 import type { AgentConfig, AgentEvent, DoneEvent } from '../agent/index.js';
+import { getRedTeamManager } from '../agent/redteam-mode.js';
+import { runBackgroundReview } from '../memory/background-review.js';
 
 // ============================================================================
 // Types
@@ -18,7 +20,9 @@ export interface UseAgentRunnerResult {
   workingState: WorkingState;
   error: string | null;
   isProcessing: boolean;
-  
+  /** One-line notice from the background learning loop (e.g. "Memory updated (+2)"). */
+  reviewNotice: string | null;
+
   // Actions
   runQuery: (query: string) => Promise<RunQueryResult | undefined>;
   cancelExecution: () => void;
@@ -36,6 +40,7 @@ export function useAgentRunner(
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [workingState, setWorkingState] = useState<WorkingState>({ status: 'idle' });
   const [error, setError] = useState<string | null>(null);
+  const [reviewNotice, setReviewNotice] = useState<string | null>(null);
   
   const abortControllerRef = useRef<AbortController | null>(null);
   
@@ -129,11 +134,33 @@ export function useAgentRunner(
             duration: item.startTime ? Date.now() - item.startTime : undefined,
           };
         });
+
+        // Background learning loop (Hermes-inspired). Non-blocking; never
+        // surfaces errors to the user. Only runs when a scratchpad exists.
+        if (doneEvent.scratchpadPath && doneEvent.answer) {
+          const manager = getRedTeamManager();
+          const engagement = manager.getActiveEngagement();
+          void runBackgroundReview({
+            scratchpadPath: doneEvent.scratchpadPath,
+            finalAnswer: doneEvent.answer,
+            model: agentConfig.model ?? 'gpt-5.2',
+            modelProvider: agentConfig.modelProvider ?? 'openai',
+            mode: manager.isRedTeamMode() ? 'redteam' : 'defensive',
+            engagementId: engagement?.id,
+          })
+            .then(summary => {
+              if (summary?.oneLiner) setReviewNotice(summary.oneLiner);
+            })
+            .catch(() => {
+              /* learning is best-effort */
+            });
+        }
+
         setWorkingState({ status: 'idle' });
         break;
       }
     }
-  }, [updateLastHistoryItem, inMemoryChatHistoryRef]);
+  }, [updateLastHistoryItem, inMemoryChatHistoryRef, agentConfig.model, agentConfig.modelProvider]);
   
   // Run a query through the agent
   const runQuery = useCallback(async (query: string): Promise<RunQueryResult | undefined> => {
@@ -228,6 +255,7 @@ export function useAgentRunner(
     workingState,
     error,
     isProcessing,
+    reviewNotice,
     runQuery,
     cancelExecution,
     setError,

@@ -36,6 +36,9 @@ Return only message IDs that contain information directly useful for answering t
  * Stores user queries, final answers, and LLM-generated summaries.
  */
 export class InMemoryChatHistory {
+  /** Number of most-recent turns kept verbatim before folding into a rolling summary. */
+  private static readonly KEEP_RECENT = 12;
+
   private messages: Message[] = [];
   private model: string;
   private relevantMessagesByQuery: Map<string, Message[]> = new Map();
@@ -95,6 +98,36 @@ Generate a brief 1-2 sentence summary of this answer.`;
       answer,
       summary,
     });
+
+    this.compactOldMessages();
+  }
+
+  /**
+   * Bound long multi-turn sessions (e.g. multi-hour red-team engagements) by
+   * folding the oldest turns into a single rolling-summary entry. Reuses the
+   * per-message summaries already computed, so it costs no extra LLM calls.
+   */
+  compactOldMessages(keepRecent: number = InMemoryChatHistory.KEEP_RECENT): void {
+    if (this.messages.length <= keepRecent + 1) return;
+
+    const foldCount = this.messages.length - keepRecent;
+    const old = this.messages.slice(0, foldCount);
+    const recent = this.messages.slice(foldCount);
+
+    const rollingSummary = old
+      .map((m) => `- ${m.query} -> ${m.summary}`)
+      .join('\n');
+
+    const rolling: Message = {
+      id: 0,
+      query: '(earlier conversation)',
+      answer: rollingSummary,
+      summary: `Rolling summary of ${old.length} earlier turns:\n${rollingSummary}`,
+    };
+
+    // Reindex so id === array position (selectRelevantMessages relies on this).
+    this.messages = [rolling, ...recent].map((m, i) => ({ ...m, id: i }));
+    this.relevantMessagesByQuery.clear();
   }
 
   /**

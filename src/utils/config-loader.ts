@@ -41,6 +41,34 @@ const GovernanceConfigSchema = z.object({
   }).optional(),
 }).optional();
 
+const MemoryConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  inject: z.boolean().default(true),
+  max_facts: z.number().default(500),
+  // Which scopes are eligible for injection during a defensive turn.
+  scopes: z.array(z.enum(['defensive', 'redteam', 'shared'])).default(['defensive', 'shared']),
+}).optional();
+
+const LearningConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  review_after_turn: z.boolean().default(true),
+  max_learned_skills: z.number().default(50),
+  min_confidence: z.number().min(0).max(1).default(0.6),
+}).optional();
+
+const CompressionConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  threshold_tokens: z.number().default(12000),
+  tail_tokens: z.number().default(4000),
+  head_items: z.number().default(3),
+  min_savings_ratio: z.number().min(0).max(1).default(0.1),
+}).optional();
+
+const InsightsConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  redact_findings: z.boolean().default(true),
+}).optional();
+
 const GideonConfigSchema = z.object({
   sources: z.record(z.string(), SourceConfigSchema),
   output: z.object({
@@ -64,11 +92,50 @@ const GideonConfigSchema = z.object({
     require_explicit_auth: z.boolean(),
   }),
   governance: GovernanceConfigSchema,
+  memory: MemoryConfigSchema,
+  learning: LearningConfigSchema,
+  compression: CompressionConfigSchema,
+  insights: InsightsConfigSchema,
 });
 
 export type GideonConfig = z.infer<typeof GideonConfigSchema>;
 export type SourceConfig = z.infer<typeof SourceConfigSchema>;
 export type GovernanceConfig = z.infer<typeof GovernanceConfigSchema>;
+export type MemoryConfig = NonNullable<z.infer<typeof MemoryConfigSchema>>;
+export type LearningConfig = NonNullable<z.infer<typeof LearningConfigSchema>>;
+export type CompressionConfig = NonNullable<z.infer<typeof CompressionConfigSchema>>;
+export type InsightsConfig = NonNullable<z.infer<typeof InsightsConfigSchema>>;
+
+// Defaults applied when a section is omitted from gideon.config.yaml.
+const MEMORY_DEFAULTS: MemoryConfig = { enabled: true, inject: true, max_facts: 500, scopes: ['defensive', 'shared'] };
+const LEARNING_DEFAULTS: LearningConfig = { enabled: true, review_after_turn: true, max_learned_skills: 50, min_confidence: 0.6 };
+const COMPRESSION_DEFAULTS: CompressionConfig = { enabled: true, threshold_tokens: 12000, tail_tokens: 4000, head_items: 3, min_savings_ratio: 0.1 };
+const INSIGHTS_DEFAULTS: InsightsConfig = { enabled: true, redact_findings: true };
+
+/** Load a config section, falling back to defaults if config is unavailable. */
+function loadSection<T>(pick: (c: GideonConfig) => T | undefined, fallback: T): T {
+  try {
+    return pick(loadConfig()) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export function getMemoryConfig(): MemoryConfig {
+  return loadSection((c) => c.memory, MEMORY_DEFAULTS);
+}
+
+export function getLearningConfig(): LearningConfig {
+  return loadSection((c) => c.learning, LEARNING_DEFAULTS);
+}
+
+export function getCompressionConfig(): CompressionConfig {
+  return loadSection((c) => c.compression, COMPRESSION_DEFAULTS);
+}
+
+export function getInsightsConfig(): InsightsConfig {
+  return loadSection((c) => c.insights, INSIGHTS_DEFAULTS);
+}
 
 let cachedConfig: GideonConfig | null = null;
 
