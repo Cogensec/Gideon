@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
 import { callLlm, getFastModel } from '../model/llm.js';
 import { localTopicCheck } from '../utils/nemo-guardrails.js';
+import { getRedTeamManager } from '../agent/redteam-mode.js';
 import { buildCombinedReviewPrompt, ReviewOutputSchema, ReviewOutput } from '../agent/review-prompts.js';
 import { getLearningConfig } from '../utils/config-loader.js';
 import { MemoryStore } from './memory-store.js';
@@ -60,6 +61,35 @@ function buildTranscript(scratchpadPath: string, finalAnswer: string): string {
   return lines.join('\n').slice(0, 8000);
 }
 
+/**
+ * Fire-and-forget the background learning loop, resolving the operating mode +
+ * engagement from the current red-team manager. Used by non-interactive command
+ * callers (brief/cve/ioc/voice) so memory and playbooks grow there too. Never
+ * throws; learning is best-effort.
+ */
+export function fireBackgroundReview(opts: {
+  scratchpadPath?: string;
+  finalAnswer: string;
+  model: string;
+  modelProvider: string;
+  signal?: AbortSignal;
+}): void {
+  if (!opts.scratchpadPath || !opts.finalAnswer) return;
+  const manager = getRedTeamManager();
+  const engagement = manager.getActiveEngagement();
+  void runBackgroundReview({
+    scratchpadPath: opts.scratchpadPath,
+    finalAnswer: opts.finalAnswer,
+    model: opts.model,
+    modelProvider: opts.modelProvider,
+    mode: manager.isRedTeamMode() ? 'redteam' : 'defensive',
+    engagementId: engagement?.id,
+    signal: opts.signal,
+  }).catch(() => {
+    /* best-effort */
+  });
+}
+
 export async function runBackgroundReview(input: ReviewInput): Promise<ReviewSummary | null> {
   const cfg = getLearningConfig();
   if (!cfg.enabled || !cfg.review_after_turn) return null;
@@ -91,9 +121,9 @@ export async function runBackgroundReview(input: ReviewInput): Promise<ReviewSum
     // Defensive turns must not learn offensive content.
     if (isDefensive && !localTopicCheck(f.text)) continue;
 
-    // Engagement-scoped facts during red-team; shared otherwise.
-    const scope: MemoryScope =
-      input.mode === 'redteam' ? (f.category === 'engagement_context' ? 'redteam' : 'redteam') : 'shared';
+    // Red-team turns keep all learned facts in the 'redteam' scope (never
+    // shared/defensive); defensive turns write durable 'shared' facts.
+    const scope: MemoryScope = input.mode === 'redteam' ? 'redteam' : 'shared';
 
     facts.push({
       id: buildFactId(f.category, f.text),

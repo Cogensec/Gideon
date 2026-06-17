@@ -1,5 +1,6 @@
 import { Agent } from '../agent/agent.js';
 import { CommandContext, CommandResult } from './types.js';
+import { fireBackgroundReview } from '../memory/background-review.js';
 
 export async function iocCommand(
   args: string[],
@@ -50,13 +51,18 @@ Provide comprehensive analysis including:
 DEFENSIVE FOCUS: Provide detection and blocking guidance, not exploitation techniques.`;
 
   let fullAnswer = '';
+  let scratchpadPath: string | undefined;
 
   try {
     for await (const event of agent.run(query)) {
       if (event.type === 'answer_chunk') {
         fullAnswer += event.text;
+      } else if (event.type === 'done') {
+        scratchpadPath = event.scratchpadPath;
       }
     }
+
+    fireBackgroundReview({ scratchpadPath, finalAnswer: fullAnswer, model: context.model, modelProvider: context.modelProvider, signal: context.signal });
 
     return {
       success: true,

@@ -1,5 +1,6 @@
 import { Agent } from '../agent/agent.js';
 import { CommandContext, CommandResult } from './types.js';
+import { fireBackgroundReview } from '../memory/background-review.js';
 import {
   isPersonaPlexAvailable,
   PersonaPlexSession,
@@ -102,12 +103,18 @@ Or set PERSONAPLEX_URL in .env to point to your PersonaPlex server.`,
     session.onTranscript(async (transcript) => {
       if (transcript.confidence > 0.7) {
         // Run agent with transcribed text
+        let spokenAnswer = '';
+        let scratchpadPath: string | undefined;
         for await (const event of agent.run(transcript.text)) {
           if (event.type === 'answer_chunk') {
             // In a full implementation, this would be sent back through PersonaPlex TTS
             process.stdout.write(event.text);
+            spokenAnswer += event.text;
+          } else if (event.type === 'done') {
+            scratchpadPath = event.scratchpadPath;
           }
         }
+        fireBackgroundReview({ scratchpadPath, finalAnswer: spokenAnswer, model: context.model, modelProvider: context.modelProvider, signal: context.signal });
       }
     });
 
