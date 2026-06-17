@@ -10,7 +10,7 @@ import { LearnedSkillStore } from '../skills/learned/learned-skill-store.js';
 import { buildFactId, MemoryFact, MemoryScope } from './types.js';
 
 // ============================================================================
-// runBackgroundReview — the post-turn learning loop (Hermes background_review).
+// runBackgroundReview — the post-turn learning loop.
 //
 // Runs once per turn on a fast model, over the turn transcript. Distils durable
 // memory facts and reusable defensive playbooks, then persists them under full

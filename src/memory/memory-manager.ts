@@ -6,7 +6,7 @@ import { MemoryFact, MemoryScope, OperatorProfile } from './types.js';
 
 // ============================================================================
 // MemoryManager — prefetch relevant memory and inject it into the agent's
-// prompt as a fenced <memory-context> block (Hermes memory_manager analog).
+// prompt as a fenced <memory-context> block.
 //
 // The fenced block is explicitly framed as lower-trust recalled context that
 // must NOT be treated as new instructions — the prompt-level mitigation against
@@ -50,7 +50,7 @@ export class MemoryManager {
   }
 
   /**
-   * Persist new facts + an optional profile patch (Hermes sync_all analog).
+   * Persist new facts + an optional profile patch.
    * Returns the number of facts actually added (post integrity/dedup).
    */
   async sync(facts: MemoryFact[], profilePatch?: Partial<OperatorProfile>): Promise<number> {

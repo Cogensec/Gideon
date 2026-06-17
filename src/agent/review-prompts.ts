@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // ============================================================================
-// Background review prompts + output schema (Hermes background_review analog).
+// Background review prompts + output schema for the post-turn learning loop.
 //
 // Kept out of prompts.ts so the hot path isn't bloated. The review runs once
 // per turn on a fast model with a strict Zod schema, over the turn transcript.

@@ -3,7 +3,7 @@ import { z } from 'zod';
 // ============================================================================
 // Persistent Memory Types
 //
-// Gideon's cross-session memory. Inspired by the Hermes agent's memory_manager
+// Gideon's cross-session memory: a durable operator/environment knowledge store
 // (who the operator is) layered on top of Gideon's defensive/red-team modes.
 //
 // Security note: every fact persisted here is LLM-distilled (source

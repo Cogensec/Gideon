@@ -4,7 +4,7 @@ import { getCompressionConfig } from '../utils/config-loader.js';
 
 // ============================================================================
 // ContextCompressor — keep long multi-step / multi-hour engagements inside the
-// model context window (Hermes context_compressor analog).
+// model context window.
 //
 // Operates over Gideon's existing compaction unit: the array of per-tool LLM
 // summaries that feed buildIterationPrompt. Protects a head (earliest items)

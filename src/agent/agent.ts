@@ -78,7 +78,7 @@ export class Agent {
     ];
     const systemPrompt = buildActiveSystemPrompt();
 
-    // Persistent memory (Hermes-inspired). Disabled via config or on failure.
+    // Persistent cross-session memory. Disabled via config or on failure.
     let memoryManager: MemoryManager | null = null;
     try {
       const memCfg = getMemoryConfig();

@@ -12,7 +12,7 @@ import type { MemoryScope } from '../../memory/types.js';
 // Gideon's built-in skills are hand-coded TS. Learned skills are instead stored
 // as markdown with a JSON frontmatter line under .gideon/skills-learned/ and
 // injected into the system prompt as a compact "Learned Playbooks" section.
-// This mirrors Hermes' class-level skill files without generating code.
+// This mirrors a class-level skill-file approach without generating code.
 // ============================================================================
 
 const SKILLS_DIR = join('.gideon', 'skills-learned');

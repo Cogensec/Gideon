@@ -135,7 +135,7 @@ export function useAgentRunner(
           };
         });
 
-        // Background learning loop (Hermes-inspired). Non-blocking; never
+        // Background learning loop. Non-blocking; never
         // surfaces errors to the user. Only runs when a scratchpad exists.
         if (doneEvent.scratchpadPath && doneEvent.answer) {
           const manager = getRedTeamManager();

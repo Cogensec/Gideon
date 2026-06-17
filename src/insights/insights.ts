@@ -6,9 +6,9 @@ import { redactSecrets } from '../memory/redaction.js';
 import { getInsightsConfig } from '../utils/config-loader.js';
 
 // ============================================================================
-// InsightsAnalyzer — after-action analytics over the scratchpad JSONL logs
-// (Hermes insights engine analog). Pure reader: no LLM needed for the stats;
-// an optional fast-model `narrate()` produces prose.
+// InsightsAnalyzer — after-action analytics over the scratchpad JSONL logs.
+// Pure reader: no LLM needed for the stats; an optional fast-model `narrate()`
+// produces prose.
 // ============================================================================
 
 const SCRATCHPAD_DIR = join('.gideon', 'scratchpad');
