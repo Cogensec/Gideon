@@ -77,6 +77,41 @@ safety:
   require_explicit_auth: false  # Set to true in production environments
 
 # ============================================================================
+# Self-Improvement (Hermes-inspired) Configuration
+# ============================================================================
+# Persistent cross-session memory: operator/org profile + durable facts,
+# injected into each turn as a fenced <memory-context> block. Facts are
+# redacted and poisoning-scanned before they are ever written.
+memory:
+  enabled: true
+  inject: true
+  max_facts: 500
+  # Scopes eligible for injection during a defensive turn. Red-team facts are
+  # never injected into defensive turns regardless of this list.
+  scopes: [defensive, shared]
+
+# Background learning loop: after each turn a cheap review distills durable
+# memory facts and reusable defensive playbooks (Hermes background_review).
+learning:
+  enabled: true
+  review_after_turn: true
+  max_learned_skills: 50
+  min_confidence: 0.6
+
+# Conversation/context compression for long multi-hour engagements.
+compression:
+  enabled: true
+  threshold_tokens: 12000
+  tail_tokens: 4000
+  head_items: 3
+  min_savings_ratio: 0.10
+
+# Engagement insights / after-action analytics (read from scratchpad logs).
+insights:
+  enabled: true
+  redact_findings: true
+
+# ============================================================================
 # Red Team Mode Configuration
 # ============================================================================
 # When activated via authorized engagement, Gideon operates as an autonomous

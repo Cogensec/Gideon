@@ -1,6 +1,7 @@
 import { Agent } from '../agent/agent.js';
 import { CommandContext, CommandResult } from './types.js';
 import { generateMarkdownReport, generateJSONReport } from '../output/index.js';
+import { fireBackgroundReview } from '../memory/background-review.js';
 
 export async function briefCommand(
   args: string[],
@@ -25,6 +26,7 @@ Focus on actionable intelligence for security defenders.`;
 
   let fullAnswer = '';
   const toolCalls: any[] = [];
+  let scratchpadPath: string | undefined;
 
   try {
     for await (const event of agent.run(query)) {
@@ -32,8 +34,12 @@ Focus on actionable intelligence for security defenders.`;
         fullAnswer += event.text;
       } else if (event.type === 'done') {
         toolCalls.push(...event.toolCalls);
+        scratchpadPath = event.scratchpadPath;
       }
     }
+
+    // Grow memory/playbooks from this non-interactive run too (best-effort).
+    fireBackgroundReview({ scratchpadPath, finalAnswer: fullAnswer, model: context.model, modelProvider: context.modelProvider, signal: context.signal });
 
     // Generate artifacts
     const timestamp = new Date().toISOString();

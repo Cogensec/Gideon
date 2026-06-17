@@ -16,6 +16,8 @@ import { HistoryItemView, WorkingIndicator } from './components/index.js';
 import { getApiKeyNameForProvider, getProviderDisplayName } from './utils/env.js';
 import { getRedTeamManager } from './agent/redteam-mode.js';
 import { registerRedTeamSkills, unregisterRedTeamSkills } from './skills/index.js';
+import { rememberFact } from './memory/remember.js';
+import { insightsCommand } from './commands/insights.js';
 
 import { useModelSelection } from './hooks/useModelSelection.js';
 import { useAgentRunner } from './hooks/useAgentRunner.js';
@@ -84,6 +86,23 @@ export function CLI() {
     // Handle model selection command
     if (query === '/model') {
       startSelection();
+      return;
+    }
+
+    // Persist an operator-provided durable memory fact
+    if (query.startsWith('/remember')) {
+      const text = query.slice('/remember'.length).trim();
+      const result = await rememberFact(text, { model, modelProvider: provider });
+      setError(result.ok ? '' : result.message);
+      if (result.ok) console.log(result.message);
+      return;
+    }
+
+    // Engagement after-action insights
+    if (query.startsWith('/insights')) {
+      const args = query.slice('/insights'.length).trim().split(/\s+/).filter(Boolean);
+      const result = await insightsCommand(args, { model, modelProvider: provider, maxIterations: 10 });
+      console.log(result.success ? result.output : (result.error ?? 'insights failed'));
       return;
     }
     

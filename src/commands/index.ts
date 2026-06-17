@@ -10,4 +10,5 @@ export { handleRedTeamCommand } from './redteam.js';
 export { handleGovernanceCommand } from './governance.js';
 export { handleGideonCommand } from './gideon.js';
 export { handleSkillsCommand, skillsCommand } from './skills.js';
+export { insightsCommand } from './insights.js';
 export * from './types.js';

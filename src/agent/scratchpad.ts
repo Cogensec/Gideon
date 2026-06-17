@@ -43,6 +43,14 @@ export class Scratchpad {
   private readonly scratchpadDir = '.gideon/scratchpad';
   private readonly filepath: string;
 
+  /**
+   * Absolute/relative path to this scratchpad's JSONL file.
+   * Consumed by the background learning loop and insights analyzer.
+   */
+  get path(): string {
+    return this.filepath;
+  }
+
   constructor(query: string) {
     if (!existsSync(this.scratchpadDir)) {
       mkdirSync(this.scratchpadDir, { recursive: true });
