@@ -81,6 +81,30 @@ describe('MemoryStore', () => {
     expect(defensive.map((f) => f.text)).toEqual(['shared fact']);
   });
 
+  test('prune enforces the cap, dropping lowest-confidence facts first', async () => {
+    for (let i = 0; i < 5; i++) {
+      await store.addFact(
+        makeFact({
+          category: 'org_asset',
+          text: `asset note ${i}`,
+          id: buildFactId('org_asset', `asset note ${i}`),
+          confidence: i / 10, // 0.0 .. 0.4
+        })
+      );
+    }
+    await store.prune(2);
+
+    const kept = store.getFacts(['shared']);
+    expect(kept).toHaveLength(2);
+    // Highest-confidence notes (0.4, 0.3) survive; lowest are dropped.
+    expect(kept.map((f) => f.text).sort()).toEqual(['asset note 3', 'asset note 4']);
+
+    // Survives a reload from disk.
+    const fresh = new MemoryStore(dir);
+    await fresh.load();
+    expect(fresh.getFacts(['shared'])).toHaveLength(2);
+  });
+
   test('pruneEngagement removes only that engagement\'s facts', async () => {
     await store.addFact(makeFact({ scope: 'redteam', category: 'engagement_context', text: 'eng1 fact', id: buildFactId('engagement_context', 'eng1 fact'), engagementId: 'eng-1' }));
     await store.addFact(makeFact({ scope: 'shared', text: 'durable', id: buildFactId('org_asset', 'durable'), category: 'org_asset' }));

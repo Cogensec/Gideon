@@ -138,8 +138,8 @@ export async function runBackgroundReview(input: ReviewInput): Promise<ReviewSum
     });
   }
 
+  // memory.sync enforces the configured max_facts cap after writing.
   const memoryAdded = await memory.sync(facts, review.profilePatch);
-  await store.prune();
 
   // --- Learned skills ---
   let skillsCreated = 0;

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { callLlm, getFastModel } from '../model/llm.js';
+import { getMemoryConfig } from '../utils/config-loader.js';
 import { MemoryStore } from './memory-store.js';
 import { MemoryFact, MemoryScope, OperatorProfile } from './types.js';
 
@@ -59,6 +60,8 @@ export class MemoryManager {
       if (res.added) added++;
     }
     if (profilePatch) await this.store.upsertProfile(profilePatch);
+    // Enforce the configured cap on every write path (review, /remember, …).
+    if (added > 0) await this.store.prune(getMemoryConfig().max_facts);
     return added;
   }
 
